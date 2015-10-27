@@ -1,0 +1,1507 @@
+# non-FT leaves increase linearly with time.#
+LN_constant = 1.2#
+LN_LD = 15.4 / LN_constant#
+LN_SD = 63.1 / LN_constant#
+FT_LD_vs_SD = 20    # LN_SD/LN_LD#
+#
+FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-8)/8)^2)#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-10)/6)^2)#
+# load('../../Seaton_model_FT/Seaton_FT_max_fun.Robj')#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) 1+FT_LD_vs_SD*(FT_max_fun(Dayl)-FT_max_fun(8))/(FT_max_fun(16)-FT_max_fun(8))#
+# calculate number of leaves for each daylength#
+Dayl = seq(8,16,length=100)#
+# GA related to Dayl and LN#
+# GA_per_leaf = function(Dayl) 1+0.4*sqrt((Dayl-8)/8)#
+GA_per_leaf = function(Dayl) 1+1*(Dayl-8)/8#
+# GA related to LN#
+# GA_per_leaf = function(Dayl) 1#
+# ratio of GA to FT in model#
+r = max(0,(LN_LD*FT_per_leaf(16,FT_LD_vs_SD) - LN_SD*FT_per_leaf(8,FT_LD_vs_SD)) / (LN_SD*GA_per_leaf(8) - LN_LD*GA_per_leaf(16)))#
+r#
+signal_thresh = (LN_LD*(FT_per_leaf(16,FT_LD_vs_SD) + r*GA_per_leaf(16)))#
+LN = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+# plot(Dayl,LN)#
+# #
+#
+# plot(Dayl,log2((LN-LN_constant)*FT_per_leaf(Dayl,FT_LD_vs_SD) / (r*(LN-LN_constant)*GA_per_leaf(Dayl))));abline(h=0)#
+# #
+# calculate number of leaves for GA mutant:#
+LN_ga = signal_thresh / (0.1*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+# calculate number of leaves for a FT mutant:#
+LN_ft = signal_thresh / (r*GA_per_leaf(Dayl) + .1*FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+LN_flm = signal_thresh / (r*GA_per_leaf(Dayl) + 2*FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+LN_co = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(8,FT_LD_vs_SD)) * LN_constant#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+LN_v10 = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant + 10#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (.8*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+LN_FRI = signal_thresh / (.6*r*GA_per_leaf(Dayl) + .0*FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+FLC = .5#
+GA = 1#
+LN_lowN = signal_thresh / ((0.8+(1-FLC)*0.2)*GA*r*GA_per_leaf(Dayl) + (1-FLC)*FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+LN_spy3 = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+LN_svp = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+plot(Dayl,LN,type='l',ylim=c(0,80))
+LN_constant = 5#
+LN_LD = 15.4 - LN_constant#
+LN_SD = 63.1 - LN_constant#
+FT_LD_vs_SD = 10    # LN_SD/LN_LD#
+#
+FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-8)/8)^2)#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-10)/6)^2)#
+# load('../../Seaton_model_FT/Seaton_FT_max_fun.Robj')#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) 1+FT_LD_vs_SD*(FT_max_fun(Dayl)-FT_max_fun(8))/(FT_max_fun(16)-FT_max_fun(8))#
+# calculate number of leaves for each daylength#
+Dayl = seq(8,16,length=100)#
+# GA related to Dayl and LN#
+# GA_per_leaf = function(Dayl) 1+0.4*sqrt((Dayl-8)/8)#
+GA_per_leaf = function(Dayl) 1+0.4*(Dayl-8)/8#
+# GA related to LN#
+# GA_per_leaf = function(Dayl) 1#
+# ratio of GA to FT in model#
+r = max(0,(LN_LD*FT_per_leaf(16,FT_LD_vs_SD) - LN_SD*FT_per_leaf(8,FT_LD_vs_SD)) / (LN_SD*GA_per_leaf(8) - LN_LD*GA_per_leaf(16)))#
+r#
+signal_thresh = (LN_LD*(FT_per_leaf(16,FT_LD_vs_SD) + r*GA_per_leaf(16)))#
+LN = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+# plot(Dayl,LN)#
+# #
+#
+# plot(Dayl,log2((LN-LN_constant)*FT_per_leaf(Dayl,FT_LD_vs_SD) / (r*(LN-LN_constant)*GA_per_leaf(Dayl))));abline(h=0)#
+# #
+# calculate number of leaves for GA mutant:#
+LN_ga = signal_thresh / (0.1*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+# calculate number of leaves for a FT mutant:#
+LN_ft = signal_thresh / (r*GA_per_leaf(Dayl) + .1*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_flm = signal_thresh / (r*GA_per_leaf(Dayl) + 2*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_co = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(8,FT_LD_vs_SD)) + LN_constant#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_v10 = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant + 10#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (.8*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_FRI = signal_thresh / (.6*r*GA_per_leaf(Dayl) + .0*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+FLC = .5#
+GA = 1#
+LN_lowN = signal_thresh / ((0.8+(1-FLC)*0.2)*GA*r*GA_per_leaf(Dayl) + (1-FLC)*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_spy3 = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_svp = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+plot(Dayl,LN,type='l',ylim=c(0,80))
+LN_constant = 5#
+LN_LD = 15.4 - LN_constant#
+LN_SD = 63.1 - LN_constant#
+FT_LD_vs_SD = 10    # LN_SD/LN_LD#
+#
+FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-8)/8)^2)#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-10)/6)^2)#
+# load('../../Seaton_model_FT/Seaton_FT_max_fun.Robj')#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) 1+FT_LD_vs_SD*(FT_max_fun(Dayl)-FT_max_fun(8))/(FT_max_fun(16)-FT_max_fun(8))#
+# calculate number of leaves for each daylength#
+Dayl = seq(8,16,length=100)#
+# GA related to Dayl and LN#
+# GA_per_leaf = function(Dayl) 1+0.4*sqrt((Dayl-8)/8)#
+GA_per_leaf = function(Dayl) 1+0.4*(Dayl-8)/8#
+# GA related to LN#
+# GA_per_leaf = function(Dayl) 1#
+# ratio of GA to FT in model#
+r = max(0,(LN_LD*FT_per_leaf(16,FT_LD_vs_SD) - LN_SD*FT_per_leaf(8,FT_LD_vs_SD)) / (LN_SD*GA_per_leaf(8) - LN_LD*GA_per_leaf(16)))#
+r#
+signal_thresh = (LN_LD*(FT_per_leaf(16,FT_LD_vs_SD) + r*GA_per_leaf(16)))#
+LN = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+# plot(Dayl,LN)#
+# #
+#
+# plot(Dayl,log2((LN-LN_constant)*FT_per_leaf(Dayl,FT_LD_vs_SD) / (r*(LN-LN_constant)*GA_per_leaf(Dayl))));abline(h=0)#
+# #
+# calculate number of leaves for GA mutant:#
+LN_ga = signal_thresh / (0.1*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+# calculate number of leaves for a FT mutant:#
+LN_ft = signal_thresh / (r*GA_per_leaf(Dayl) + .1*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_flm = signal_thresh / (r*GA_per_leaf(Dayl) + 2*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_co = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(8,FT_LD_vs_SD)) + LN_constant#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_v10 = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant + 10#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (.8*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_FRI = signal_thresh / (.6*r*GA_per_leaf(Dayl) + .0*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+FLC = .5#
+GA = 1#
+LN_lowN = signal_thresh / ((0.8+(1-FLC)*0.2)*GA*r*GA_per_leaf(Dayl) + (1-FLC)*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_spy3 = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_svp = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+plot(Dayl,LN,type='l',ylim=c(0,80))
+# non-FT leaves increase linearly with time.#
+LN_constant = 1.2#
+LN_LD = 15.4 / LN_constant#
+LN_SD = 63.1 / LN_constant#
+FT_LD_vs_SD = 20    # LN_SD/LN_LD#
+#
+FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-8)/8)^2)#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-10)/6)^2)#
+# load('../../Seaton_model_FT/Seaton_FT_max_fun.Robj')#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) 1+FT_LD_vs_SD*(FT_max_fun(Dayl)-FT_max_fun(8))/(FT_max_fun(16)-FT_max_fun(8))#
+# calculate number of leaves for each daylength#
+Dayl = seq(8,16,length=100)#
+# GA related to Dayl and LN#
+# GA_per_leaf = function(Dayl) 1+0.4*sqrt((Dayl-8)/8)#
+GA_per_leaf = function(Dayl) 1+1*(Dayl-8)/8#
+# GA related to LN#
+# GA_per_leaf = function(Dayl) 1#
+# ratio of GA to FT in model#
+r = max(0,(LN_LD*FT_per_leaf(16,FT_LD_vs_SD) - LN_SD*FT_per_leaf(8,FT_LD_vs_SD)) / (LN_SD*GA_per_leaf(8) - LN_LD*GA_per_leaf(16)))#
+r#
+signal_thresh = (LN_LD*(FT_per_leaf(16,FT_LD_vs_SD) + r*GA_per_leaf(16)))#
+LN = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+# plot(Dayl,LN)#
+# #
+#
+# plot(Dayl,log2((LN-LN_constant)*FT_per_leaf(Dayl,FT_LD_vs_SD) / (r*(LN-LN_constant)*GA_per_leaf(Dayl))));abline(h=0)#
+# #
+# calculate number of leaves for GA mutant:#
+LN_ga = signal_thresh / (0.1*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+# calculate number of leaves for a FT mutant:#
+LN_ft = signal_thresh / (r*GA_per_leaf(Dayl) + .1*FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+LN_flm = signal_thresh / (r*GA_per_leaf(Dayl) + 2*FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+LN_co = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(8,FT_LD_vs_SD)) * LN_constant#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+LN_v10 = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant + 10#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (.8*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+LN_FRI = signal_thresh / (.6*r*GA_per_leaf(Dayl) + .0*FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+FLC = .5#
+GA = 1#
+LN_lowN = signal_thresh / ((0.8+(1-FLC)*0.2)*GA*r*GA_per_leaf(Dayl) + (1-FLC)*FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+LN_spy3 = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+LN_svp = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+plot(Dayl,LN,type='l',ylim=c(0,80))
+LN_constant = 5#
+LN_LD = 15.4 - LN_constant#
+LN_SD = 63.1 - LN_constant#
+FT_LD_vs_SD = 10    # LN_SD/LN_LD#
+#
+FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-8)/8)^2)#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-10)/6)^2)#
+# load('../../Seaton_model_FT/Seaton_FT_max_fun.Robj')#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) 1+FT_LD_vs_SD*(FT_max_fun(Dayl)-FT_max_fun(8))/(FT_max_fun(16)-FT_max_fun(8))#
+# calculate number of leaves for each daylength#
+Dayl = seq(8,16,length=100)#
+# GA related to Dayl and LN#
+# GA_per_leaf = function(Dayl) 1+0.4*sqrt((Dayl-8)/8)#
+GA_per_leaf = function(Dayl) 1+1*(Dayl-8)/8#
+# GA related to LN#
+# GA_per_leaf = function(Dayl) 1#
+# ratio of GA to FT in model#
+r = max(0,(LN_LD*FT_per_leaf(16,FT_LD_vs_SD) - LN_SD*FT_per_leaf(8,FT_LD_vs_SD)) / (LN_SD*GA_per_leaf(8) - LN_LD*GA_per_leaf(16)))#
+r#
+signal_thresh = (LN_LD*(FT_per_leaf(16,FT_LD_vs_SD) + r*GA_per_leaf(16)))#
+LN = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+# plot(Dayl,LN)#
+# #
+#
+# plot(Dayl,log2((LN-LN_constant)*FT_per_leaf(Dayl,FT_LD_vs_SD) / (r*(LN-LN_constant)*GA_per_leaf(Dayl))));abline(h=0)#
+# #
+# calculate number of leaves for GA mutant:#
+LN_ga = signal_thresh / (0.1*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+# calculate number of leaves for a FT mutant:#
+LN_ft = signal_thresh / (r*GA_per_leaf(Dayl) + .1*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_flm = signal_thresh / (r*GA_per_leaf(Dayl) + 2*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_co = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(8,FT_LD_vs_SD)) + LN_constant#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_v10 = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant + 10#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (.8*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_FRI = signal_thresh / (.6*r*GA_per_leaf(Dayl) + .0*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+FLC = .5#
+GA = 1#
+LN_lowN = signal_thresh / ((0.8+(1-FLC)*0.2)*GA*r*GA_per_leaf(Dayl) + (1-FLC)*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_spy3 = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_svp = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+plot(Dayl,LN,type='l',ylim=c(0,80))
+# non-FT leaves increase linearly with time.#
+LN_constant = 1.2#
+LN_LD = 15.4 / LN_constant#
+LN_SD = 63.1 / LN_constant#
+FT_LD_vs_SD = 20    # LN_SD/LN_LD#
+#
+r = max(0,(LN_LD*FT_per_leaf(16,FT_LD_vs_SD) - LN_SD*FT_per_leaf(8,FT_LD_vs_SD)) / (LN_SD*GA_per_leaf(8) - LN_LD*GA_per_leaf(16)))#
+r#
+signal_thresh = (LN_LD*(FT_per_leaf(16,FT_LD_vs_SD) + r*GA_per_leaf(16)))#
+LN = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+# plot(Dayl,LN)#
+# #
+#
+# plot(Dayl,log2((LN-LN_constant)*FT_per_leaf(Dayl,FT_LD_vs_SD) / (r*(LN-LN_constant)*GA_per_leaf(Dayl))));abline(h=0)#
+# #
+# calculate number of leaves for GA mutant:#
+LN_ga = signal_thresh / (0.1*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+# calculate number of leaves for a FT mutant:#
+LN_ft = signal_thresh / (r*GA_per_leaf(Dayl) + .1*FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+LN_flm = signal_thresh / (r*GA_per_leaf(Dayl) + 2*FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+LN_co = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(8,FT_LD_vs_SD)) * LN_constant#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+LN_v10 = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant + 10#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (.8*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+LN_FRI = signal_thresh / (.6*r*GA_per_leaf(Dayl) + .0*FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+FLC = .5#
+GA = 1#
+LN_lowN = signal_thresh / ((0.8+(1-FLC)*0.2)*GA*r*GA_per_leaf(Dayl) + (1-FLC)*FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+LN_spy3 = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+LN_svp = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) * LN_constant#
+#
+plot(Dayl,LN,type='l',ylim=c(0,80))
+LN_constant = 5#
+LN_LD = 15.4 - LN_constant#
+LN_SD = 63.1 - LN_constant#
+FT_LD_vs_SD = 10    # LN_SD/LN_LD#
+#
+FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-8)/8)^2)#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-10)/6)^2)#
+# load('../../Seaton_model_FT/Seaton_FT_max_fun.Robj')#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) 1+FT_LD_vs_SD*(FT_max_fun(Dayl)-FT_max_fun(8))/(FT_max_fun(16)-FT_max_fun(8))#
+# calculate number of leaves for each daylength#
+Dayl = seq(8,16,length=100)#
+# GA related to Dayl and LN#
+# GA_per_leaf = function(Dayl) 1+0.4*sqrt((Dayl-8)/8)#
+GA_per_leaf = function(Dayl) 1+1*(Dayl-8)/8#
+# GA related to LN#
+# GA_per_leaf = function(Dayl) 1#
+# ratio of GA to FT in model#
+r = max(0,(LN_LD*FT_per_leaf(16,FT_LD_vs_SD) - LN_SD*FT_per_leaf(8,FT_LD_vs_SD)) / (LN_SD*GA_per_leaf(8) - LN_LD*GA_per_leaf(16)))#
+r#
+signal_thresh = (LN_LD*(FT_per_leaf(16,FT_LD_vs_SD) + r*GA_per_leaf(16)))#
+LN = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+# plot(Dayl,LN)#
+# #
+#
+# plot(Dayl,log2((LN-LN_constant)*FT_per_leaf(Dayl,FT_LD_vs_SD) / (r*(LN-LN_constant)*GA_per_leaf(Dayl))));abline(h=0)#
+# #
+# calculate number of leaves for GA mutant:#
+LN_ga = signal_thresh / (0.1*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+# calculate number of leaves for a FT mutant:#
+LN_ft = signal_thresh / (r*GA_per_leaf(Dayl) + .1*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_flm = signal_thresh / (r*GA_per_leaf(Dayl) + 2*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_co = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(8,FT_LD_vs_SD)) + LN_constant#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_v10 = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant + 10#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (.8*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_FRI = signal_thresh / (.6*r*GA_per_leaf(Dayl) + .0*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+FLC = .5#
+GA = 1#
+LN_lowN = signal_thresh / ((0.8+(1-FLC)*0.2)*GA*r*GA_per_leaf(Dayl) + (1-FLC)*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_spy3 = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_svp = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+plot(Dayl,LN,type='l',ylim=c(0,80))
+sub_data = subset(data,grepl('ACE2_22Con',ExpID))
+summary(sub_data)
+sub_data = subset(data,grepl('ACE2_22Con',ExpID) & grepl('NV',ExpID))
+summary(sub_data)
+ggplot(sub_data,aes(x=TLN,y=CLN)) +geom_point(aes(color=Dayl))
+ggplot(sub_data,aes(x=TLN,y=CLN)) +geom_point(aes(color=Dayl)) + geom_smooth(aes(color=Dayl))
+ggplot(sub_data,aes(x=TLN,y=CLN)) +geom_point(aes(color=Dayl)) + geom_smooth(aes(group=Dayl))
+sub_data$Dayl = factor(sub_data$Dayl)
+ggplot(sub_data,aes(x=TLN,y=CLN)) +geom_point(aes(color=Dayl)) + geom_smooth(aes(color=Dayl))
+ggplot(sub_data,aes(x=TLN,y=CLN)) +geom_jitter(aes(color=Dayl),position = position_jitter(height=.2)) + geom_smooth(aes(color=Dayl))
+a=read.delim('~/Documents/Arabidopsis/Compendium_data/individual_experiments/data/Pouteau/Pouteau_1996.txt')
+a
+ggplot(a,aes(x=Photoperiod,y=RLN)) + geom_point(color=Type)
+ggplot(a,aes(x=Photoperiod,y=RLN)) + geom_point(aes(color=Type))
+ggplot(a,aes(x=Photoperiod,y=RLN)) + geom_line(aes(color=Type))
+ggplot(a,aes(x=Photoperiod,y=CLN)) + geom_line(aes(color=Type))
+ggplot(a,aes(x=Photoperiod,y=RLN+CLN)) + geom_line(aes(color=Type))
+ggplot(a,aes(x=Photoperiod,y=RLN+CLN)) + geom_line(aes(color=Type)) + xlim(8,16)
+ggplot(a,aes(x=Photoperiod,y=RLN)) + geom_line(aes(color=Type)) + xlim(8,16)
+plot(environ_data[['ACE2_22ConSD_NV']]$leaf[,100],log='y')
+plot(colSums(environ_data[['ACE2_22ConSD_NV']]$leaf)>threshold)
+plot(colSums(environ_data[['ACE2_22ConSD_NV']]$leaf>threshold))
+threshold
+lines(colSums(environ_data[['ACE2_22ConLD_NV']]$leaf>threshold))
+plot(colSums(environ_data[['ACE2_22ConLD_NV']]$leaf>threshold))
+lines(colSums(environ_data[['ACE2_22ConSD_NV']]$leaf>threshold))
+threshold = 1e-4
+plot(colSums(environ_data[['ACE2_22ConLD_NV']]$leaf>threshold))
+lines(colSums(environ_data[['ACE2_22ConSD_NV']]$leaf>threshold))
+threshold = 1e-6
+plot(colSums(environ_data[['ACE2_22ConLD_NV']]$leaf>threshold))
+lines(colSums(environ_data[['ACE2_22ConSD_NV']]$leaf>threshold))
+names(environ_data[['ACE2_22ConSD_NV']])
+plot(environ_data[['ACE2_22ConLD_NV']]$daily_Suc,type='l')
+lines(environ_data[['ACE2_22ConSD_NV']]$daily_Suc,col=2)
+plot(environ_data[['ACE2_22ConLD_NV']]$daily_Suc,type='l',log='l')
+plot(environ_data[['ACE2_22ConLD_NV']]$daily_Suc,type='l',log='y')
+lines(environ_data[['ACE2_22ConSD_NV']]$daily_Suc,col=2)
+environ_data_full = environ_data#
+environ_data = list(Dayl_8 = environ_data_full[['ACE2_22ConSD_NV']])
+environ_data_full = environ_data
+environ_data_base = environ_data_full[['ACE2_22ConSD_NV']]
+Dayl = seq(8,16,length=20)
+environ = environ_data_base
+dayl = 12
+names(environ)
+environ
+names(environ_data_full)
+environ_data_base = environ_data_full[[1]]
+nams(environ_data_base)
+names(environ_data_base)
+head(environ_data_base$Hrs.light,n=100)
+load('New_init_workspace.RData')
+environ_data_full = environ_data
+environ_data_base = environ_data_full[['ACE2_22ConSD_NV']]
+environ = environ_data_base
+environ_data_base = environ_data_full[['ACE2_22ConLD_NV']]
+environ = environ_data_base
+head(environ_data_base$Hrs.light,n=100)
+head(environ_data_base$Grnd,n=100)
+environ$Hrs.light = c(rep(1,dayl),rep(0,24-dayl))
+head(environ$Hrs.light,n=100)
+environ = environ_data_base#
+    nDays = length(environ$Grnd.Tmp)/24#
+    environ$Dayl = rep(dayl,24*nDays)#
+    environ$Hrs.light = rep(c(rep(1,dayl),rep(0,24-dayl)),nDays)
+sapply(environ,length)
+Dayl = seq(8,16,length=20)#
+environ_data = list()#
+for(dayl in Dayl){#
+    environ = environ_data_base#
+    nDays = length(environ$Grnd.Tmp)/24#
+    environ$Dayl = rep(dayl,24*nDays)#
+    environ$Hrs.light = rep(c(rep(1,dayl),rep(0,24-dayl)),nDays)#
+    environ_data[[paste('Dayl',dayl,sep='_')]] = environ#
+}#
+fit_plantings = names(environ_data)
+names(environ_data)
+Dayl = seq(8,16,length=by=0.25)#
+environ_data = list()#
+for(dayl in Dayl){#
+    environ = environ_data_base#
+    nDays = length(environ$Grnd.Tmp)/24#
+    environ$Dayl = rep(dayl,24*nDays)#
+    environ$Hrs.light = rep(c(rep(1,dayl),rep(0,24-dayl)),nDays)#
+    environ_data[[paste('Dayl',dayl,sep='_')]] = environ#
+}#
+fit_plantings = names(environ_data)#
+source('../MW_model_shiny/prepFSPM.R')
+Hrs_light
+veg_growth_curve = c_sim_vegetative_development(
+nDays,#
+                        nCycles,#
+                        RUE_per_phytomer = parameters$RUE_per_phytomer,#
+                        parameters,#
+                        TT_per_hour[1:(24*nDays)],#
+                        Leaf_Temp = pmax(Grnd_Tmp,0),#pmax(Grnd_Tmp-3,0)+3,#
+                        PAR_umol_h,#
+                        Hrs_light,#
+                        Sunrise,#
+                        Sunset                   #
+                           )
+env
+Dayl = seq(8,16,length=by=0.25)#
+environ_data = list()#
+for(dayl in Dayl){#
+    environ = environ_data_base#
+    nDays = length(environ$Grnd.Tmp)/24#
+    environ$Dayl = rep(dayl,24*nDays)#
+    environ$Hrs.light = rep(c(rep(1,dayl),rep(0,24-dayl)),nDays)#
+    environ_data[[paste('Dayl',dayl,sep='_')]] = environ#
+}#
+fit_plantings = names(environ_data)
+Dayl = seq(8,16,by=0.25)#
+environ_data = list()#
+for(dayl in Dayl){#
+    environ = environ_data_base#
+    nDays = length(environ$Grnd.Tmp)/24#
+    environ$Dayl = rep(dayl,24*nDays)#
+    environ$Hrs.light = rep(c(rep(1,dayl),rep(0,24-dayl)),nDays)#
+    environ_data[[paste('Dayl',dayl,sep='_')]] = environ#
+}#
+fit_plantings = names(environ_data)
+fit_plantings
+source('../MW_model_shiny/prepFSPM.R')
+env
+nDays = length(environ_data[[env]]$Grnd.Tmp)[1]/24
+Grnd_Tmp = environ_data[[env]]$Grnd.Tmp#
+    TT_per_hour = pmax((Grnd_Tmp - base_temp)/24,0)#
+    PAR_umol_s = environ_data[[env]]$PAR#
+    PAR_umol_h = PAR_umol_s * 60 * 60#
+    Hrs_light = environ_data[[env]]$Hrs.light
+Hrs_light
+Sunrise = rep(sapply(1:nDays,function(day) {#
+        x = 24*(day-1) + 1:24#
+        if(sum(Hrs_light[x]==1)>0) x = x[1:which(Hrs_light[x]==1)[1]]#
+        sum(1-Hrs_light[x])#
+    }),each=24)
+nDays
+sapply(environ_data[[env]],length)
+c(rep(1,dayl),rep(0,24-dayl))
+length(c(rep(1,dayl),rep(0,24-dayl)))
+dayl = 8.24
+length(c(rep(1,dayl),rep(0,24-dayl)))
+length(c(rep(1,floor(dayl)),rep(0,24-floor(dayl))))
+length(c(rep(1,floor(dayl)),rep(0,24-ceiling(dayl))))
+length(c(rep(1,floor(dayl)),rep(dayl %% 1,dayl %% 1 > 0),rep(0,24-ceiling(dayl))))
+c(rep(1,floor(dayl)),rep(dayl %% 1,dayl %% 1 > 0),rep(0,24-ceiling(dayl)))
+dayl
+dayl=8
+c(rep(1,floor(dayl)),rep(dayl %% 1,dayl %% 1 > 0),rep(0,24-ceiling(dayl)))
+length(c(rep(1,floor(dayl)),rep(dayl %% 1,dayl %% 1 > 0),rep(0,24-ceiling(dayl))))
+Dayl = seq(8,16,by=0.25)#
+environ_data = list()#
+for(dayl in Dayl){#
+    environ = environ_data_base#
+    nDays = length(environ$Grnd.Tmp)/24#
+    environ$Dayl = rep(dayl,24*nDays)#
+    environ$Hrs.light = rep(c(rep(1,floor(dayl)),rep(dayl %% 1,dayl %% 1 > 0),rep(0,24-ceiling(dayl))),nDays)#
+    environ_data[[paste('Dayl',dayl,sep='_')]] = environ#
+}#
+fit_plantings = names(environ_data)#
+source('../MW_model_shiny/prepFSPM.R')
+a = sapply(environ_data,function(x) x$daily_Suc)
+dim(a)
+a = melt(a)
+head(a)
+a = sapply(environ_data,function(x) x$daily_Suc)
+head(a)
+ggplot(a,aes(x=X1,y=value)) + geom_line(aes(color=X2)) + scale_y_log10()
+a = data.frame(melt(sapply(environ_data,function(x) x$daily_Suc)))
+ggplot(a,aes(x=X1,y=value)) + geom_line(aes(color=X2)) + scale_y_log10()
+plot(Dayl,a[20,])
+length(Dayl)
+dim(a)
+a=sapply(environ_data,function(x) x$daily_Suc)#
+tall_a = data.frame(melt(a))
+plot(Dayl,a[20,])
+plot(Dayl,a[20,],log='y')
+plot(Dayl,a[30,],log='y')
+plot(Dayl,a[50,],log='y')
+plot(Dayl,a[100,],log='y')
+mutant_data = read.csv('~/Documents/Arabidopsis/Compendium_data/individual_experiments/data/Giakountis/mutants.csv',na.string='-')#
+accessions_data = read.csv('~/Documents/Arabidopsis/Compendium_data/individual_experiments/data/Giakountis/Accessions.csv',na.string='-')#
+#
+library(reshape)#
+library(ggplot2)#
+#
+mutant_data = mutant_data[order(mutant_data$SD.8.h),]#
+accessions_data = accessions_data[order(accessions_data$SD.8.h),]#
+#
+mutant_data = melt(mutant_data,measure.vars = colnames(mutant_data)[grepl('[0-9].h',colnames(mutant_data))])#
+mutant_data$Genotype = factor(mutant_data$Genotype,levels = unique(mutant_data$Genotype),ordered=T)#
+accessions_data = melt(accessions_data,measure.vars = colnames(accessions_data)[grepl('[0-9].h',colnames(accessions_data))])#
+#
+mutant_data$Dayl = as.numeric(sapply(as.character(mutant_data$variable),function(x) strsplit(x,'.',fixed=T)[[1]][2]))#
+accessions_data$Dayl = as.numeric(sapply(as.character(accessions_data$variable),function(x) strsplit(x,'.',fixed=T)[[1]][2]))#
+#
+p = ggplot(mutant_data,aes(x=Dayl,y=value)) + geom_line(aes(color = Genotype))#
+p
+ggplot(tall_a,aes(x=X1,y=value)) + geom_line(aes(color=X2)) + scale_y_log10()
+ggplot(tall_a,aes(x=X1,y=value)) + geom_line(aes(color=X2))
+LN_constant = 5#
+LN_LD = 15.4 - LN_constant#
+LN_SD = 63.1 - LN_constant#
+FT_LD_vs_SD = 10    # LN_SD/LN_LD#
+#
+FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-7)/9)^2)#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-10)/6)^2)#
+# load('../../Seaton_model_FT/Seaton_FT_max_fun.Robj')#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) 1+FT_LD_vs_SD*(FT_max_fun(Dayl)-FT_max_fun(8))/(FT_max_fun(16)-FT_max_fun(8))#
+# calculate number of leaves for each daylength#
+Dayl = seq(8,16,length=100)#
+# GA related to Dayl and LN#
+# GA_per_leaf = function(Dayl) 1+0.4*sqrt((Dayl-8)/8)#
+GA_per_leaf = function(Dayl) 1+1*(Dayl-8)/8#
+# GA related to LN#
+# GA_per_leaf = function(Dayl) 1#
+# ratio of GA to FT in model#
+r = max(0,(LN_LD*FT_per_leaf(16,FT_LD_vs_SD) - LN_SD*FT_per_leaf(8,FT_LD_vs_SD)) / (LN_SD*GA_per_leaf(8) - LN_LD*GA_per_leaf(16)))#
+r#
+signal_thresh = (LN_LD*(FT_per_leaf(16,FT_LD_vs_SD) + r*GA_per_leaf(16)))#
+LN = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+# plot(Dayl,LN)#
+# #
+#
+# plot(Dayl,log2((LN-LN_constant)*FT_per_leaf(Dayl,FT_LD_vs_SD) / (r*(LN-LN_constant)*GA_per_leaf(Dayl))));abline(h=0)#
+# #
+# calculate number of leaves for GA mutant:#
+LN_ga = signal_thresh / (0.1*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+# calculate number of leaves for a FT mutant:#
+LN_ft = signal_thresh / (r*GA_per_leaf(Dayl) + .1*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_flm = signal_thresh / (r*GA_per_leaf(Dayl) + 2*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_co = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(8,FT_LD_vs_SD)) + LN_constant#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_v10 = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant + 10#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (.8*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_FRI = signal_thresh / (.6*r*GA_per_leaf(Dayl) + .0*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+FLC = .5#
+GA = 1#
+LN_lowN = signal_thresh / ((0.8+(1-FLC)*0.2)*GA*r*GA_per_leaf(Dayl) + (1-FLC)*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_spy3 = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_svp = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+plot(Dayl,LN,type='l',ylim=c(0,80))
+LN_constant = 5#
+LN_LD = 15.4 - LN_constant#
+LN_SD = 63.1 - LN_constant#
+FT_LD_vs_SD = 10    # LN_SD/LN_LD#
+#
+FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-8)/8)^2)#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-10)/6)^2)#
+# load('../../Seaton_model_FT/Seaton_FT_max_fun.Robj')#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) 1+FT_LD_vs_SD*(FT_max_fun(Dayl)-FT_max_fun(8))/(FT_max_fun(16)-FT_max_fun(8))#
+# calculate number of leaves for each daylength#
+Dayl = seq(8,16,length=100)#
+# GA related to Dayl and LN#
+# GA_per_leaf = function(Dayl) 1+0.4*sqrt((Dayl-8)/8)#
+GA_per_leaf = function(Dayl) 1+1*(Dayl-8)/8#
+# GA related to LN#
+# GA_per_leaf = function(Dayl) 1#
+# ratio of GA to FT in model#
+r = max(0,(LN_LD*FT_per_leaf(16,FT_LD_vs_SD) - LN_SD*FT_per_leaf(8,FT_LD_vs_SD)) / (LN_SD*GA_per_leaf(8) - LN_LD*GA_per_leaf(16)))#
+r#
+signal_thresh = (LN_LD*(FT_per_leaf(16,FT_LD_vs_SD) + r*GA_per_leaf(16)))#
+LN = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+# plot(Dayl,LN)#
+# #
+#
+# plot(Dayl,log2((LN-LN_constant)*FT_per_leaf(Dayl,FT_LD_vs_SD) / (r*(LN-LN_constant)*GA_per_leaf(Dayl))));abline(h=0)#
+# #
+# calculate number of leaves for GA mutant:#
+LN_ga = signal_thresh / (0.1*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+# calculate number of leaves for a FT mutant:#
+LN_ft = signal_thresh / (r*GA_per_leaf(Dayl) + .1*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_flm = signal_thresh / (r*GA_per_leaf(Dayl) + 2*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_co = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(8,FT_LD_vs_SD)) + LN_constant#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_v10 = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant + 10#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (.8*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_FRI = signal_thresh / (.6*r*GA_per_leaf(Dayl) + .0*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+FLC = .5#
+GA = 1#
+LN_lowN = signal_thresh / ((0.8+(1-FLC)*0.2)*GA*r*GA_per_leaf(Dayl) + (1-FLC)*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_spy3 = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_svp = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+plot(Dayl,LN,type='l',ylim=c(0,80))
+LN_constant = 5#
+LN_LD = 15.4 - LN_constant#
+LN_SD = 63.1 - LN_constant#
+FT_LD_vs_SD = 10    # LN_SD/LN_LD#
+#
+FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-10)/6)^2)#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-10)/6)^2)#
+# load('../../Seaton_model_FT/Seaton_FT_max_fun.Robj')#
+# FT_per_leaf = function(Dayl,FT_LD_vs_SD) 1+FT_LD_vs_SD*(FT_max_fun(Dayl)-FT_max_fun(8))/(FT_max_fun(16)-FT_max_fun(8))#
+# calculate number of leaves for each daylength#
+Dayl = seq(8,16,length=100)#
+# GA related to Dayl and LN#
+# GA_per_leaf = function(Dayl) 1+0.4*sqrt((Dayl-8)/8)#
+GA_per_leaf = function(Dayl) 1+1*(Dayl-8)/8#
+# GA related to LN#
+# GA_per_leaf = function(Dayl) 1#
+# ratio of GA to FT in model#
+r = max(0,(LN_LD*FT_per_leaf(16,FT_LD_vs_SD) - LN_SD*FT_per_leaf(8,FT_LD_vs_SD)) / (LN_SD*GA_per_leaf(8) - LN_LD*GA_per_leaf(16)))#
+r#
+signal_thresh = (LN_LD*(FT_per_leaf(16,FT_LD_vs_SD) + r*GA_per_leaf(16)))#
+LN = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+# plot(Dayl,LN)#
+# #
+#
+# plot(Dayl,log2((LN-LN_constant)*FT_per_leaf(Dayl,FT_LD_vs_SD) / (r*(LN-LN_constant)*GA_per_leaf(Dayl))));abline(h=0)#
+# #
+# calculate number of leaves for GA mutant:#
+LN_ga = signal_thresh / (0.1*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+# calculate number of leaves for a FT mutant:#
+LN_ft = signal_thresh / (r*GA_per_leaf(Dayl) + .1*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_flm = signal_thresh / (r*GA_per_leaf(Dayl) + 2*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_co = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(8,FT_LD_vs_SD)) + LN_constant#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_v10 = signal_thresh / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant + 10#
+LN_v10 = (signal_thresh + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) / (.8*r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_FRI = signal_thresh / (.6*r*GA_per_leaf(Dayl) + .0*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+FLC = .5#
+GA = 1#
+LN_lowN = signal_thresh / ((0.8+(1-FLC)*0.2)*GA*r*GA_per_leaf(Dayl) + (1-FLC)*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+LN_spy3 = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+LN_svp = (0.7*signal_thresh) / (r*GA_per_leaf(Dayl) + 10*FT_per_leaf(Dayl,FT_LD_vs_SD)) + LN_constant#
+#
+plot(Dayl,LN,type='l',ylim=c(0,80))
+FT_per_leaf = function(Dayl,FT_LD_vs_SD) 1+FT_LD_vs_SD*(FT_max_fun(Dayl)-FT_max_fun(8))/(FT_max_fun(16)-FT_max_fun(8))
+FT_per_leaf2 = function(Dayl,FT_LD_vs_SD) 1+FT_LD_vs_SD*(FT_max_fun(Dayl)-FT_max_fun(8))/(FT_max_fun(16)-FT_max_fun(8))
+FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-8)/8^2)
+)
+FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-8)/8^2)
+FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-10)/6)^2)
+FT_per_leaf = function(Dayl,FT_LD_vs_SD) (1 + (FT_LD_vs_SD-1)*(pmax(0,Dayl-8)/8)^2)
+Dayl
+plot(FT_per_leaf(Dayl,20),FT_per_leaf2(Dayl,20))
+abline(0,1)
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE2',ExpID) & Genotype %in% c('Col','gi-2') & grepl('_NV',Treatment)))#
+boxplot(sub_data$TLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE',ExpID) & Genotype %in% c('co','gi-2') & grepl('_NV',Treatment)))#
+boxplot(sub_data$TLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE',ExpID) & Genotype %in% c('co','gi-2') & grepl('_NV',Treatment)))#
+boxplot(sub_data$RLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE',ExpID) & Genotype %in% c('co','gi-2') & grepl('_NV',Treatment)))#
+boxplot(sub_data$CLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE2',ExpID) & Genotype %in% c('Ler-1','ft-2'))#
+boxplot(sub_data$CLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE2',ExpID) & Genotype %in% c('Ler-1','ft-2')))#
+boxplot(sub_data$CLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE3',ExpID) & Genotype %in% c('Col','co')))#
+boxplot(sub_data$CLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE3',ExpID) & Genotype %in% c('Col'')))#
+boxplot(sub_data$CLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE3',ExpID) & Genotype %in% c('Col')))#
+boxplot(sub_data$CLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE3',ExpID) & Genotype %in% c('ft-10')))#
+boxplot(sub_data$CLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE3',ExpID) & Genotype %in% c('ft-10')))#
+boxplot(sub_data$TLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE3',ExpID) & Genotype %in% c('Col')))#
+boxplot(sub_data$TLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE3',ExpID) & Genotype %in% c('vin3-4')))#
+boxplot(sub_data$TLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE2',ExpID) & Genotype %in% c('vin3-4')))#
+boxplot(sub_data$TLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE2',ExpID) & Genotype %in% c('Col')))#
+boxplot(sub_data$TLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE2',ExpID) & Genotype %in% c('vin3-4')))#
+boxplot(sub_data$TLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+par(mar=c(10,5,3,1))#
+#
+sub_data = drop.levels(subset(data,grepl('ACE2',ExpID) & Genotype %in% c('vin3-4 FRI')))#
+boxplot(sub_data$TLN~sub_data$Genotype/sub_data$Treatment,las=2,cex.axis=.8,col=2:3,ylab = 'TLN')
+?readTargets
+source("/Users/der7/Documents/Arabidopsis/FT_by_leaf_model/Molecular_Wilczek_model/Inspect_co_gi_ACE.R")
+a=read.delim('~/Downloads/E-MEXP-2073.processed.1/12276002_532_norm_RMA_pair.txt')
+head(a)
+mean(a$PM[1:3])
+setwd('~/Downloads/E-MEXP-2073.processed.1')
+files = list.files(pattern='dummy')
+files
+setwd('~/Downloads/E-MEXP-2073.processed.1')#
+files = list.files(pattern='dummy')#
+#
+data = c()#
+for(file in files){#
+    indata = read.delim(file)#
+    data = cbind(data,indata$EXPRS) #
+}#
+rownames(data) = indata$SEQ_ID
+head(data)
+sample_info = read.delim('E-MEXP-2073.sdrf.txt')
+head(sample_info)
+dim(sample_info)
+dim(data)
+sample_info$Derived
+sample_info[,1]
+sample_info$Array
+sample_info$Array.
+sample_info$Array.Design.REF
+sample_info$Array.Data.File
+sample_info = sample_info[match(files,sample_info$Derived),]
+dimsample_info
+dim(sample_info)
+head(sample_info)
+sample_info$Genotype = c('ColFRI','vin3-4 FRI')[grepl('vin3.4',sample_info$Souce.Name)+1]
+sample_info$Souce.Name
+sample_info$Genotype = c('ColFRI','vin3-4 FRI')[grepl('vin3.4',sample_info$Source.Name)+1]
+sample_info$Genotype
+sample_info = read.delim('E-MEXP-2073.sdrf.txt')#
+sample_info = sample_info[match(files,sample_info$Derived),]#
+#
+sample_info$Genotype = c('ColFRI','vin3-4 FRI')[grepl('vin3.4',sample_info$Source.Name)+1]#
+sample_info$Trt = c('Ctl','lowO2')[grepl('stress',sample_info$Source.Name)+1]#
+design = model.matrix(~Genotype*Trt,sample_info)
+fit1 = lmFit(data,design)
+fit1
+topTable(e_fit1,coef = 3)
+e_fit1 = eBayes(fit1)
+topTable(e_fit1,coef = 3)
+boxplot(data['AT5G28300.1',]~sample_info$Genotype/sample_info$Trt)
+head(fit$coef)
+head(fit1$coef)
+topTable(e_fit1,coef = 4)
+boxplot(data['AT5G20480.1',]~sample_info$Genotype/sample_info$Trt)
+topTable(e_fit1,coef = 4)['AT5G20480.1',]
+topTable(e_fit1,coef = 4,sort='none',n=Inf)['AT5G20480.1',]
+topTable(e_fit1,coef = 4,sort='none',n=Inf)['AT5G10140.1',]
+topTable(e_fit1,coef = 3,sort='none',n=Inf)['AT5G10140.1',]
+topTable(e_fit1,coef = 2,sort='none',n=Inf)['AT5G10140.1',]
+topTable(e_fit1,coef = 2,sort='none',n=Inf)['AT4G22950.1',]
+topTable(e_fit1,coef = 3,sort='none',n=Inf)['AT4G22950.1',]
+topTable(e_fit1,coef = 4,sort='none',n=Inf)['AT4G22950.1',]
+boxplot(data['AT4G22950.1',]~sample_info$Genotype/sample_info$Trt)
+boxplot(data['AT5G57380.1',]~sample_info$Genotype/sample_info$Trt)
+sample_info = read.delim("Data/Sample_info_updated.txt")
+setwd("/Users/der7/Documents/Urchins/pH_experiment/SPU_analysis/draft4_analysis")
+sample_info = read.delim("Data/Sample_info_updated.txt")
+head(sample_info)
+summary(sample_info$Est_num_larvae)
+# now, trait results#
+#Growth rate#
+GRs = read.delim("Data/Sam_GR.txt",h=F,stringsAsFactors=F)#
+GRs[,1] = paste('2_',GRs[,1],sep='')#
+GRs = GRs[match(sample_info$Culture,GRs[,1]),]#
+#
+trait_data = data.frame(Culture = sample_info$Culture,Growth_Rate = GRs[,2])#
+# Mortality#
+days=which(rowSums(is.na(survival_rate))<2)#
+days = days[days >= 4]
+days
+#Things to test:#
+#voomR - normalization? cpm? TMM?#
+#
+library(GSVA)#
+library(parallel)#
+library(edgeR)#
+library(nlme)#
+library(ggplot2)#
+library(glmnet)#
+library(TeachingDemos)#
+library(RColorBrewer)#
+library(reshape)#
+#
+if('ncores' %in% ls()==F) ncores=4#
+#
+FDR_cutoff = 0.1#
+#
+gene_counts = as.matrix(read.delim("Data/Gene_counts.txt",check.names=F))#
+ercc_counts = as.matrix(read.delim("Data/ERCC_counts.txt",check.names=F))#
+no_feature_counts = as.matrix(read.delim("Data/No_feature_counts.txt",check.names=F))#
+#
+sample_info = read.delim("Data/Sample_info_updated.txt")#
+sample_info$Culture = paste("2_",sample_info$Culture,sep="")#
+sample_info = sample_info[match(colnames(gene_counts),sample_info$Culture),]#
+sample_info[,11:19] = scale(sample_info[,11:19])#
+#
+colnames(sample_info)[c(9:10)] = c("Pop_female","Pop_male")#
+#
+design_2way = model.matrix(~Treatment + Male + Female + Male:Treatment+Female:Treatment + Male:Female,data = sample_info)#
+design_1way = model.matrix(~Pop_female + Pop_male + Treatment + Male + Female,data = sample_info)#
+design_1way = design_1way[,colnames(design_1way) %in% c('MaleZ','FemaleY')==F]#
+#
+trait_tests = function(Y,sample_info,design_2way,design_1way,do_voom=F,FDR_cutoff = 0.1,lib.size,norm.factors,sample.weights = NULL){#
+    # first do 2-way interaction tests#
+    if(do_voom){#
+        voomR_2way = voomWithQualityWeights(Y,design=design_2way,lib.size = lib.size*norm.factors,normalize.method='none',plot=F)#
+        f_2way = lmFit(voomR_2way,design_2way)#
+    } else{#
+        if(!is.null(dim(Y))) {#
+            # Y is a matrix.#
+            Y = list(M = Y)#
+        }#
+        if(is.null(Y$weights)) Y$weights = array(1,dim = dim(Y$M))#
+        if(!is.null(sample.weights)){#
+            Y$weights = t(apply(Y$weights,1,'*',sample.weights))#
+        }       #
+        f_2way = lmFit(Y,design_2way)#
+    }#
+    f_2way_eBayes = eBayes(f_2way)#
+    male_trt_p = f_2way_eBayes[,grep("TreatmentLow:Male",colnames(design_2way))]$F.p.value#
+    female_trt_p = f_2way_eBayes[,grep("TreatmentLow:Female",colnames(design_2way))]$F.p.value#
+    male_female_p = f_2way_eBayes[,which(grepl("Male",colnames(design_2way)) & grepl("Female",colnames(design_2way)))]$F.p.value#
+    p_vals_2way = cbind(male_trt_p,female_trt_p,male_female_p)#
+    q_vals_2way = matrix(p.adjust(c(p_vals_2way),method='BH'),nc=3)#
+    colnames(p_vals_2way) = paste(c('Male:Treatment','Female:Treatment','Male:Female'),'_pValue',sep='')#
+    colnames(q_vals_2way) = paste(c('Male:Treatment','Female:Treatment','Male:Female'),'_qValue',sep='')#
+    results_2way = cbind(f_2way_eBayes$coef,p_vals_2way,q_vals_2way)#
+#
+    # then do 1-way tests#
+    if(do_voom){#
+        voomR_1way = voomWithQualityWeights(Y,design=design_1way,lib.size = lib.size*norm.factors,normalize.method='none',plot=T)#
+        f_1way = lmFit(voomR_1way,design_1way)#
+    } else{#
+        # Y already a list if necessary#
+        f_1way = lmFit(Y,design_1way)#
+    }#
+    f_1way_eBayes = eBayes(f_1way)#
+    trt_p = f_1way_eBayes[,grep("Treatment",colnames(design_1way))]$F.p.value#
+    male_p = f_1way_eBayes[,grep("Male",colnames(design_1way))]$F.p.value#
+    female_p = f_1way_eBayes[,grep("Female",colnames(design_1way))]$F.p.value#
+    # calculate the pop effects, but are not real population effects. Just are differences between particular males and females across populations.#
+    malePop_p = f_1way_eBayes[,grep("Pop_male",colnames(design_1way))]$F.p.value#
+    femalePop_p = f_1way_eBayes[,grep("Pop_female",colnames(design_1way))]$F.p.value#
+    p_vals_1way = cbind(trt_p,male_p,female_p,malePop_p,femalePop_p)#
+    # FDR#
+    q_vals_1way = matrix(p.adjust(c(p_vals_1way),method='BH'),nc=5)#
+    colnames(p_vals_1way) = paste(c('Treatment','Male','Female','Pop_male','Pop_female'),'_pValue',sep='')#
+    colnames(q_vals_1way) = paste(c('Treatment','Male','Female','Pop_male','Pop_female'),'_qValue',sep='')#
+    results_1way = cbind(f_1way_eBayes$coef,p_vals_1way,q_vals_1way)#
+#
+    # some testing plots#
+    # j = q_vals_1way_pop[,2]>.2#
+    # head(order(q_vals_1way_noPop[j,2]))#
+    # tops = which(j)[head(order(q_vals_1way_noPop[j,2]),n=10)]#
+    # i=which(j)[6683]#
+    # boxplot(resid(lm(Y[i,]~Female+Treatment,weights = voomR_1way$w[i,],data=sample_info))~sample_info$Male)#
+    # anova(lm(Y[i,]~Pop_male+Female+Treatment+Male,weights = voomR_1way$w[i,],data=sample_info))#
+    results = list(two_way = results_2way,one_way = results_1way,two_way_eBayes = f_2way_eBayes, eBayes_one_way = f_1way_eBayes)#
+    if(do_voom) {#
+        results$sample.weights = voomR_1way$sample.weights#
+        results$logCPM = voomR_1way$E#
+    }#
+#
+    return(results)#
+}#
+#
+# first, do gene expression tests#
+lib.size = apply(rbind(gene_counts,ercc_counts,no_feature_counts),2,sum)#
+norm.factors = calcNormFactors(gene_counts,method='TMM',lib.size = lib.size)#
+#
+low_genes = rowSums(gene_counts) < 10
+# now, trait results#
+#Growth rate#
+GRs = read.delim("Data/Sam_GR.txt",h=F,stringsAsFactors=F)#
+GRs[,1] = paste('2_',GRs[,1],sep='')#
+GRs = GRs[match(sample_info$Culture,GRs[,1]),]#
+#
+trait_data = data.frame(Culture = sample_info$Culture,Growth_Rate = GRs[,2])#
+# Mortality#
+days=which(rowSums(is.na(survival_rate))<2)#
+days = days[days >= 4]
+survival_rate = as.matrix(read.delim("Data/Daily_mortality_summary_chain3.txt",h=T))#
+survival_rate = survival_rate[,match(sample_info$Culture,paste('2_',colnames(survival_rate),sep=''))]#
+days=which(rowSums(is.na(survival_rate))<2)#
+days = days[days >= 4]
+days
+log_mortality = log(1-t(survival_rate[days,]))#
+colnames(log_mortality) = paste('log_Mortality_',days,sep='')#
+trait_data = data.frame(trait_data,log_mortality)#
+trait_data$log_Mortality_6_9 = log(1-apply(survival_rate[6:9,],2,prod))#
+#
+# rescale GR to have variance = 1#
+Y = t(trait_data[,-1])#
+Y[1,]=Y[1,]/sd(Y[1,])#
+trait_results = trait_tests(Y,sample_info,design_2way,design_1way,do_voom=F,FDR_cutoff = FDR_cutoff)
+trait_results
+trait_results$one
+data = data.frame(Treatment = sample_info$Treatment,Growth_Rate = GRs[,2], t(1-survival_rate[days,]))#
+names(data)[-c(1:2)] = paste('Day',days,sep='_')#
+tall_data = melt(data,id.vars = 'Treatment')#
+#
+# growth rate % change#
+mC=mean(data$Growth_Rate[data$Treatment=='Ctl'])#
+mL=mean(data$Growth_Rate[data$Treatment=='Low'])#
+(mL-mC)/mC#
+#
+try(dir.create('Plots'))#
+pdf('Plots/Performance.pdf')#
+p = ggplot(subset(tall_data,variable == 'Growth_Rate'),aes(x=Treatment,y=value))#
+p + geom_boxplot() + ylab('Growth Rate')#
+#
+tall_data$variable = factor(sub('Day_','',tall_data$variable),levels = c('Growth_Rate',days),ordered=T)#
+p = ggplot(subset(tall_data,variable != 'Growth_Rate'),aes(x=variable,y=value))#
+p = p + geom_smooth(aes(group = Treatment,color = Treatment),formula = y~x) + ylab('Mortality Rate') + xlab('Days after fertilization')#
+p#
+#
+days2 = seq(3,dim(survival_rate)[1])#
+plot(NA,NA,xlim=range(days2),ylim=c(0,1))#
+for(i in 1:dim(sample_info)[1]){#
+    lines(days2[!is.na(survival_rate[days2,i])],cumprod(na.omit(survival_rate[days2,i])),col=c('red','blue')[(sample_info$Treatment[i]=='Ctl')+1])#
+}#
+legend('bottom',c('Ctl','Low'),col=c('blue','red'),lty=1)#
+#
+mortality_rate = 1-survival_rate#
+mortality_rate[1,] = 0#
+plot(NA,NA,xlim=range(days2),ylim=c(0,max(mortality_rate,na.rm=T)))#
+for(i in 1:dim(sample_info)[1]){#
+    lines(days2[!is.na(mortality_rate[days2,i])],na.omit(mortality_rate[days2,i]),col=c('red','blue')[(sample_info$Treatment[i]=='Ctl')+1])#
+}#
+legend('bottom',c('Ctl','Low'),col=c('blue','red'),lty=1)#
+#
+dev.off()
+larvae_counts = read.csv('cleaned_count_data.csv')#
+culture_names = unique(larvae_counts$Culture)#
+#
+base_name="_chain4"#
+folder=paste("survival_plots",base_name,sep="")#
+source("Survival_function_v4.R")#
+dir.create(folder)#
+setwd(folder)#
+library(parallel)#
+ncores=detectCores()#
+#
+priors = list(  #
+                prior_l0_shape       = 10,#
+                prior_start          = 50000,#
+                prior_M_shape        = 1,#
+                prior_M_rate         = 1,#
+                truncation_point_low = 00#
+                )#
+culture_survival('',priors,plotPrior=T)#
+#
+daily_survival = mclapply(culture_names,function(culture) culture_survival(subset(larvae_counts,Culture == culture),priors,c(),nIter=1000,thin=10,burnin=1000),mc.cores=ncores)#
+names(daily_survival) = culture_names#
+setwd("..")#
+#
+total_days = max(larvae_counts$Day)#
+daily_survival_summary = sapply(culture_names,function(culture) {#
+    X=rep(NA,total_days); #
+    X[larvae_counts$Day[larvae_counts$Culture==culture]] = colMeans(t(apply(daily_survival[[culture]],1,cumprod))); #
+    X})#
+#
+daily_mortality_summary = sapply(culture_names,function(culture) {#
+    X=rep(NA,total_days); #
+    X[larvae_counts$Day[larvae_counts$Culture==culture]] = colMeans(daily_survival[[culture]]); #
+    X})#
+#
+save(daily_survival,file=paste("Daily_survival_samples",base_name,".Robj",sep=""))#
+write.table(daily_survival_summary,file=paste("Daily_survival_summary",base_name,".txt",sep=""),sep="\t",row.names=F,quote=F)#
+write.table(daily_mortality_summary,file=paste("Daily_mortality_summary",base_name,".txt",sep=""),sep="\t",row.names=F,quote=F,col.names=T)#
+# write.table(larvae_counts,file=paste("Augmented_larvae_counts",base_name,".txt",sep=""),sep="\t",row.names=T,quote=F)
+setwd("/Users/der7/Documents/Urchins/pH_experiment/SPU_analysis/draft4_analysis/Survival_analysis")
+larvae_counts = read.csv('cleaned_count_data.csv')#
+culture_names = unique(larvae_counts$Culture)#
+#
+base_name="_chain4"#
+folder=paste("survival_plots",base_name,sep="")#
+source("Survival_function_v4.R")#
+dir.create(folder)#
+setwd(folder)#
+library(parallel)#
+ncores=detectCores()#
+#
+priors = list(  #
+                prior_l0_shape       = 10,#
+                prior_start          = 50000,#
+                prior_M_shape        = 1,#
+                prior_M_rate         = 1,#
+                truncation_point_low = 00#
+                )#
+culture_survival('',priors,plotPrior=T)#
+#
+daily_survival = mclapply(culture_names,function(culture) culture_survival(subset(larvae_counts,Culture == culture),priors,c(),nIter=1000,thin=10,burnin=1000),mc.cores=ncores)#
+names(daily_survival) = culture_names#
+setwd("..")#
+#
+total_days = max(larvae_counts$Day)#
+daily_survival_summary = sapply(culture_names,function(culture) {#
+    X=rep(NA,total_days); #
+    X[larvae_counts$Day[larvae_counts$Culture==culture]] = colMeans(t(apply(daily_survival[[culture]],1,cumprod))); #
+    X})#
+#
+daily_mortality_summary = sapply(culture_names,function(culture) {#
+    X=rep(NA,total_days); #
+    X[larvae_counts$Day[larvae_counts$Culture==culture]] = colMeans(daily_survival[[culture]]); #
+    X})#
+#
+save(daily_survival,file=paste("Daily_survival_samples",base_name,".Robj",sep=""))#
+write.table(daily_survival_summary,file=paste("Daily_survival_summary",base_name,".txt",sep=""),sep="\t",row.names=F,quote=F)#
+write.table(daily_mortality_summary,file=paste("Daily_mortality_summary",base_name,".txt",sep=""),sep="\t",row.names=F,quote=F,col.names=T)#
+# write.table(larvae_counts,file=paste("Augmented_larvae_counts",base_name,".txt",sep=""),sep="\t",row.names=T,quote=F)
+daily_mortality_summary
+# now, trait results#
+#Growth rate#
+GRs = read.delim("Data/Sam_GR.txt",h=F,stringsAsFactors=F)#
+GRs[,1] = paste('2_',GRs[,1],sep='')#
+GRs = GRs[match(sample_info$Culture,GRs[,1]),]#
+#
+trait_data = data.frame(Culture = sample_info$Culture,Growth_Rate = GRs[,2])#
+# Mortality#
+survival_rate = as.matrix(read.delim("Data/Daily_mortality_summary_chain4.txt",h=T))#
+survival_rate = survival_rate[,match(sample_info$Culture,paste('2_',colnames(survival_rate),sep=''))]#
+days=which(rowSums(is.na(survival_rate))<2)#
+days = days[days >= 4]#
+log_mortality = log(1-t(survival_rate[days,]))#
+colnames(log_mortality) = paste('log_Mortality_',days,sep='')#
+trait_data = data.frame(trait_data,log_mortality)#
+trait_data$log_Mortality_6_9 = log(1-apply(survival_rate[6:9,],2,prod))#
+#
+# rescale GR to have variance = 1#
+Y = t(trait_data[,-1])#
+Y[1,]=Y[1,]/sd(Y[1,])#
+trait_results = trait_tests(Y,sample_info,design_2way,design_1way,do_voom=F,FDR_cutoff = FDR_cutoff)
+data = data.frame(Treatment = sample_info$Treatment,Growth_Rate = GRs[,2], t(1-survival_rate[days,]))#
+names(data)[-c(1:2)] = paste('Day',days,sep='_')#
+tall_data = melt(data,id.vars = 'Treatment')#
+#
+# growth rate % change#
+mC=mean(data$Growth_Rate[data$Treatment=='Ctl'])#
+mL=mean(data$Growth_Rate[data$Treatment=='Low'])#
+(mL-mC)/mC#
+#
+try(dir.create('Plots'))#
+pdf('Plots/Performance.pdf')#
+p = ggplot(subset(tall_data,variable == 'Growth_Rate'),aes(x=Treatment,y=value))#
+p + geom_boxplot() + ylab('Growth Rate')#
+#
+tall_data$variable = factor(sub('Day_','',tall_data$variable),levels = c('Growth_Rate',days),ordered=T)#
+p = ggplot(subset(tall_data,variable != 'Growth_Rate'),aes(x=variable,y=value))#
+p = p + geom_smooth(aes(group = Treatment,color = Treatment),formula = y~x) + ylab('Mortality Rate') + xlab('Days after fertilization')#
+p#
+#
+days2 = seq(3,dim(survival_rate)[1])#
+plot(NA,NA,xlim=range(days2),ylim=c(0,1))#
+for(i in 1:dim(sample_info)[1]){#
+    lines(days2[!is.na(survival_rate[days2,i])],cumprod(na.omit(survival_rate[days2,i])),col=c('red','blue')[(sample_info$Treatment[i]=='Ctl')+1])#
+}#
+legend('bottom',c('Ctl','Low'),col=c('blue','red'),lty=1)#
+#
+mortality_rate = 1-survival_rate#
+mortality_rate[1,] = 0#
+plot(NA,NA,xlim=range(days2),ylim=c(0,max(mortality_rate,na.rm=T)))#
+for(i in 1:dim(sample_info)[1]){#
+    lines(days2[!is.na(mortality_rate[days2,i])],na.omit(mortality_rate[days2,i]),col=c('red','blue')[(sample_info$Treatment[i]=='Ctl')+1])#
+}#
+legend('bottom',c('Ctl','Low'),col=c('blue','red'),lty=1)#
+#
+dev.off()
+setwd("/Users/der7/Documents/Urchins/pH_experiment/SPU_analysis/draft4_analysis")
+# now, trait results#
+#Growth rate#
+GRs = read.delim("Data/Sam_GR.txt",h=F,stringsAsFactors=F)#
+GRs[,1] = paste('2_',GRs[,1],sep='')#
+GRs = GRs[match(sample_info$Culture,GRs[,1]),]#
+#
+trait_data = data.frame(Culture = sample_info$Culture,Growth_Rate = GRs[,2])#
+# Mortality#
+survival_rate = as.matrix(read.delim("Data/Daily_mortality_summary_chain4.txt",h=T))#
+survival_rate = survival_rate[,match(sample_info$Culture,paste('2_',colnames(survival_rate),sep=''))]#
+days=which(rowSums(is.na(survival_rate))<2)#
+days = days[days >= 4]#
+log_mortality = log(1-t(survival_rate[days,]))#
+colnames(log_mortality) = paste('log_Mortality_',days,sep='')#
+trait_data = data.frame(trait_data,log_mortality)#
+trait_data$log_Mortality_6_9 = log(1-apply(survival_rate[6:9,],2,prod))#
+#
+# rescale GR to have variance = 1#
+Y = t(trait_data[,-1])#
+Y[1,]=Y[1,]/sd(Y[1,])#
+trait_results = trait_tests(Y,sample_info,design_2way,design_1way,do_voom=F,FDR_cutoff = FDR_cutoff)
+setwd("/Users/der7/Documents/Urchins/pH_experiment/SPU_analysis/draft4_analysis")
+data = data.frame(Treatment = sample_info$Treatment,Growth_Rate = GRs[,2], t(1-survival_rate[days,]))#
+names(data)[-c(1:2)] = paste('Day',days,sep='_')#
+tall_data = melt(data,id.vars = 'Treatment')#
+#
+# growth rate % change#
+mC=mean(data$Growth_Rate[data$Treatment=='Ctl'])#
+mL=mean(data$Growth_Rate[data$Treatment=='Low'])#
+(mL-mC)/mC#
+#
+try(dir.create('Plots'))#
+pdf('Plots/Performance.pdf')#
+p = ggplot(subset(tall_data,variable == 'Growth_Rate'),aes(x=Treatment,y=value))#
+p + geom_boxplot() + ylab('Growth Rate')#
+#
+tall_data$variable = factor(sub('Day_','',tall_data$variable),levels = c('Growth_Rate',days),ordered=T)#
+p = ggplot(subset(tall_data,variable != 'Growth_Rate'),aes(x=variable,y=value))#
+p = p + geom_smooth(aes(group = Treatment,color = Treatment),formula = y~x) + ylab('Mortality Rate') + xlab('Days after fertilization')#
+p#
+#
+days2 = seq(3,dim(survival_rate)[1])#
+plot(NA,NA,xlim=range(days2),ylim=c(0,1))#
+for(i in 1:dim(sample_info)[1]){#
+    lines(days2[!is.na(survival_rate[days2,i])],cumprod(na.omit(survival_rate[days2,i])),col=c('red','blue')[(sample_info$Treatment[i]=='Ctl')+1])#
+}#
+legend('bottom',c('Ctl','Low'),col=c('blue','red'),lty=1)#
+#
+mortality_rate = 1-survival_rate#
+mortality_rate[1,] = 0#
+plot(NA,NA,xlim=range(days2),ylim=c(0,max(mortality_rate,na.rm=T)))#
+for(i in 1:dim(sample_info)[1]){#
+    lines(days2[!is.na(mortality_rate[days2,i])],na.omit(mortality_rate[days2,i]),col=c('red','blue')[(sample_info$Treatment[i]=='Ctl')+1])#
+}#
+legend('bottom',c('Ctl','Low'),col=c('blue','red'),lty=1)#
+#
+dev.off()
+# now, trait results#
+#Growth rate#
+GRs = read.delim("Data/Sam_GR.txt",h=F,stringsAsFactors=F)#
+GRs[,1] = paste('2_',GRs[,1],sep='')#
+GRs = GRs[match(sample_info$Culture,GRs[,1]),]#
+#
+trait_data = data.frame(Culture = sample_info$Culture,Growth_Rate = GRs[,2])#
+# Mortality#
+survival_rate = as.matrix(read.delim("Data/Daily_mortality_summary_chain4.txt",h=T))#
+survival_rate = survival_rate[,match(sample_info$Culture,paste('2_',colnames(survival_rate),sep=''))]#
+days=which(rowSums(is.na(survival_rate))<2)#
+days = days[days >= 4]#
+log_mortality = log(1-t(survival_rate[days,]))#
+colnames(log_mortality) = paste('log_Mortality_',days,sep='')#
+trait_data = data.frame(trait_data,log_mortality)#
+trait_data$log_Mortality_6_9 = log(1-apply(survival_rate[6:9,],2,prod))#
+#
+# rescale GR to have variance = 1#
+Y = t(trait_data[,-1])#
+Y[1,]=Y[1,]/sd(Y[1,])#
+trait_results = trait_tests(Y,sample_info,design_2way,design_1way,do_voom=F,FDR_cutoff = FDR_cutoff)
+# now, trait results#
+#Growth rate#
+GRs = read.delim("Data/Sam_GR.txt",h=F,stringsAsFactors=F)#
+GRs[,1] = paste('2_',GRs[,1],sep='')#
+GRs = GRs[match(sample_info$Culture,GRs[,1]),]#
+#
+trait_data = data.frame(Culture = sample_info$Culture,Growth_Rate = GRs[,2])#
+# Mortality#
+survival_rate = as.matrix(read.delim("Data/Daily_mortality_summary_chain4.txt",h=T))#
+survival_rate = survival_rate[,match(sample_info$Culture,paste('2_',colnames(survival_rate),sep=''))]#
+days=which(rowSums(is.na(survival_rate))<2)#
+days = days[days >= 4]#
+log_mortality = log(1-t(survival_rate[days,]))#
+colnames(log_mortality) = paste('log_Mortality_',days,sep='')#
+trait_data = data.frame(trait_data,log_mortality)#
+trait_data$log_Mortality_6_9 = log(1-apply(survival_rate[6:9,],2,prod))#
+#
+# rescale GR to have variance = 1#
+Y = t(trait_data[,-1])#
+Y[1,]=Y[1,]/sd(Y[1,])#
+trait_results = trait_tests(Y,sample_info,design_2way,design_1way,do_voom=F,FDR_cutoff = FDR_cutoff)
+dim(survival_rate)
+head(survival_rate)
+larvae_counts = read.csv('cleaned_count_data.csv')#
+culture_names = unique(larvae_counts$Culture)#
+#
+base_name="_chain4"#
+folder=paste("survival_plots",base_name,sep="")#
+source("Survival_function_v4.R")#
+dir.create(folder)#
+setwd(folder)#
+library(parallel)#
+ncores=detectCores()#
+#
+priors = list(  #
+                prior_l0_shape       = 10,#
+                prior_start          = 50000,#
+                prior_M_shape        = 1,#
+                prior_M_rate         = 1,#
+                truncation_point_low = 00#
+                )#
+culture_survival('',priors,plotPrior=T)
+setwd("/Users/der7/Documents/Urchins/pH_experiment/SPU_analysis/draft4_analysis/Survival_analysis")
+larvae_counts = read.csv('cleaned_count_data.csv')#
+culture_names = unique(larvae_counts$Culture)#
+#
+base_name="_chain4"#
+folder=paste("survival_plots",base_name,sep="")#
+source("Survival_function_v4.R")#
+dir.create(folder)#
+setwd(folder)#
+library(parallel)#
+ncores=detectCores()#
+#
+priors = list(  #
+                prior_l0_shape       = 10,#
+                prior_start          = 50000,#
+                prior_M_shape        = 1,#
+                prior_M_rate         = 1,#
+                truncation_point_low = 00#
+                )#
+culture_survival('',priors,plotPrior=T)
+culture = culture_names[1]
+culture_survival(subset(larvae_counts,Culture == culture),priors,c(),nIter=1000,thin=10,burnin=1000)
+head(culture_data)
+culture_data$Day
+days_between_samples = diff(culture_data$Day)
+days_between_samples
+# now, trait results#
+#Growth rate#
+GRs = read.delim("Data/Sam_GR.txt",h=F,stringsAsFactors=F)#
+GRs[,1] = paste('2_',GRs[,1],sep='')#
+GRs = GRs[match(sample_info$Culture,GRs[,1]),]#
+#
+trait_data = data.frame(Culture = sample_info$Culture,Growth_Rate = GRs[,2])#
+# Mortality#
+survival_rate = as.matrix(read.delim("Data/Daily_mortality_summary_chain4.txt",h=T))#
+survival_rate = survival_rate[,match(sample_info$Culture,paste('2_',colnames(survival_rate),sep=''))]#
+days=which(rowSums(is.na(survival_rate))<2)#
+days = days[days >= 4]#
+log_mortality = log(1-t(survival_rate[days,]))#
+colnames(log_mortality) = paste('log_Mortality_',days,sep='')#
+trait_data = data.frame(trait_data,log_mortality)#
+trait_data$log_Mortality_6_9 = log(1-apply(survival_rate[6:9,],2,prod))#
+#
+# rescale GR to have variance = 1#
+Y = t(trait_data[,-1])#
+Y[1,]=Y[1,]/sd(Y[1,])#
+trait_results = trait_tests(Y,sample_info,design_2way,design_1way,do_voom=F,FDR_cutoff = FDR_cutoff)
+# now, trait results#
+#Growth rate#
+GRs = read.delim("Data/Sam_GR.txt",h=F,stringsAsFactors=F)#
+GRs[,1] = paste('2_',GRs[,1],sep='')#
+GRs = GRs[match(sample_info$Culture,GRs[,1]),]#
+#
+trait_data = data.frame(Culture = sample_info$Culture,Growth_Rate = GRs[,2])#
+# Mortality#
+survival_rate = as.matrix(read.delim("Data/Daily_mortality_summary_chain4.txt",h=T))#
+survival_rate = survival_rate[,match(sample_info$Culture,paste('2_',colnames(survival_rate),sep=''))]#
+days=which(rowSums(is.na(survival_rate))<2)#
+days = days[days >= 4]#
+log_mortality = log(1-t(survival_rate[days,]))#
+colnames(log_mortality) = paste('log_Mortality_',days,sep='')#
+trait_data = data.frame(trait_data,log_mortality)#
+trait_data$log_Mortality_6_9 = log(1-apply(survival_rate[6:9,],2,prod))#
+#
+# rescale GR to have variance = 1#
+Y = t(trait_data[,-1])#
+Y[1,]=Y[1,]/sd(Y[1,])#
+trait_results = trait_tests(Y,sample_info,design_2way,design_1way,do_voom=F,FDR_cutoff = FDR_cutoff)
+setwd("/Users/der7/Documents/Urchins/pH_experiment/SPU_analysis/draft4_analysis")
+# now, trait results#
+#Growth rate#
+GRs = read.delim("Data/Sam_GR.txt",h=F,stringsAsFactors=F)#
+GRs[,1] = paste('2_',GRs[,1],sep='')#
+GRs = GRs[match(sample_info$Culture,GRs[,1]),]#
+#
+trait_data = data.frame(Culture = sample_info$Culture,Growth_Rate = GRs[,2])#
+# Mortality#
+survival_rate = as.matrix(read.delim("Data/Daily_mortality_summary_chain4.txt",h=T))#
+survival_rate = survival_rate[,match(sample_info$Culture,paste('2_',colnames(survival_rate),sep=''))]#
+days=which(rowSums(is.na(survival_rate))<2)#
+days = days[days >= 4]#
+log_mortality = log(1-t(survival_rate[days,]))#
+colnames(log_mortality) = paste('log_Mortality_',days,sep='')#
+trait_data = data.frame(trait_data,log_mortality)#
+trait_data$log_Mortality_6_9 = log(1-apply(survival_rate[6:9,],2,prod))#
+#
+# rescale GR to have variance = 1#
+Y = t(trait_data[,-1])#
+Y[1,]=Y[1,]/sd(Y[1,])#
+trait_results = trait_tests(Y,sample_info,design_2way,design_1way,do_voom=F,FDR_cutoff = FDR_cutoff)
+data = data.frame(Treatment = sample_info$Treatment,Growth_Rate = GRs[,2], t(1-survival_rate[days,]))#
+names(data)[-c(1:2)] = paste('Day',days,sep='_')#
+tall_data = melt(data,id.vars = 'Treatment')#
+#
+# growth rate % change#
+mC=mean(data$Growth_Rate[data$Treatment=='Ctl'])#
+mL=mean(data$Growth_Rate[data$Treatment=='Low'])#
+(mL-mC)/mC#
+#
+try(dir.create('Plots'))#
+pdf('Plots/Performance.pdf')#
+p = ggplot(subset(tall_data,variable == 'Growth_Rate'),aes(x=Treatment,y=value))#
+p + geom_boxplot() + ylab('Growth Rate')#
+#
+tall_data$variable = factor(sub('Day_','',tall_data$variable),levels = c('Growth_Rate',days),ordered=T)#
+p = ggplot(subset(tall_data,variable != 'Growth_Rate'),aes(x=variable,y=value))#
+p = p + geom_smooth(aes(group = Treatment,color = Treatment),formula = y~x) + ylab('Mortality Rate') + xlab('Days after fertilization')#
+p#
+#
+days2 = seq(3,dim(survival_rate)[1])#
+plot(NA,NA,xlim=range(days2),ylim=c(0,1))#
+for(i in 1:dim(sample_info)[1]){#
+    lines(days2[!is.na(survival_rate[days2,i])],cumprod(na.omit(survival_rate[days2,i])),col=c('red','blue')[(sample_info$Treatment[i]=='Ctl')+1])#
+}#
+legend('bottom',c('Ctl','Low'),col=c('blue','red'),lty=1)#
+#
+mortality_rate = 1-survival_rate#
+mortality_rate[1,] = 0#
+plot(NA,NA,xlim=range(days2),ylim=c(0,max(mortality_rate,na.rm=T)))#
+for(i in 1:dim(sample_info)[1]){#
+    lines(days2[!is.na(mortality_rate[days2,i])],na.omit(mortality_rate[days2,i]),col=c('red','blue')[(sample_info$Treatment[i]=='Ctl')+1])#
+}#
+legend('bottom',c('Ctl','Low'),col=c('blue','red'),lty=1)#
+#
+dev.off()
+setwd("/Users/der7/Documents/Urchins/pH_experiment/SPU_analysis/draft4_analysis/Survival_analysis")
+larvae_counts = read.csv('cleaned_count_data.csv')#
+culture_names = levels(larvae_counts$Culture)#
+base_name="_chain4"#
+folder=paste("survival_plots",base_name,sep="")#
+#
+load(paste("Daily_survival_samples",base_name,".Robj",sep=""))
+plot_posterior_mean = function(culture_data, X){#
+    culture = culture_data$Culture[1]#
+    culture_data = culture_data[order(culture_data$Day),]#
+    #exclude days that you don't want to analyze#
+    data  = culture_data[,c("Total_1","Total_2")]#
+    vols  = culture_data$Vol_Used#
+    fact  = culture_data$Density_multiplication_factor#
+    scale = vols/(5000*fact)#
+    nDays = dim(data)[1]#
+#plot results#
+    fitted = colMeans(t(apply(X,1,cumprod)))#
+    a=as.data.frame(data)#
+    a=a/scale#
+    plot(rep(1:nDays,2),unlist(a),ylim=c(0,max(c(unlist(a),fitted))),main=culture)#
+    lines(1:nDays,rowMeans(a))#
+    abline(v=(2:nDays)[fact[2:nDays] != fact[2:nDays-1]])#
+    points(fitted,col=4)    #
+}#
+#
+pdf(sprintf('%s/Fitted_survival_curves.pdf',folder))#
+for(culture in culture_names){#
+    # pdf(paste("Fitted_survival_",culture,".pdf"))#
+    plot_posterior_mean(subset(larvae_counts,Culture == culture), daily_survival[[culture]])#
+    # dev.off()#
+}#
+dev.off()
+library(coda)#
+#test autocorelation#
+acfs=sapply(daily_survival,function(x) apply(x,2,function(y) autocorr(mcmc(y))[3]))#
+culture_survival_curves = sapply(daily_survival,function(x) t(apply(x,1,cumprod)))#
+names(culture_survival_curves) = culture_names#
+#
+days=lapply(culture_names,function(cult) larvae_counts$Day[larvae_counts$Culture==cult])#
+names(days) = culture_names#
+#
+fitted_pops=matrix(NA,nrow=length(culture_names),max(unlist(days)))#
+rownames(fitted_pops) = culture_names#
+for(culture in as.character(culture_names)) fitted_pops[culture,days[[culture]]] = colMeans(culture_survival_curves[[culture]])#
+#
+pdf(sprintf("%s/Survival_plots.pdf",folder))#
+    #fitted_pops=fitted_pops[substr(rownames(fitted_pops),1,1)!= "Z",]#
+    fitted_pops_std =fitted_pops/apply(fitted_pops,1,max,na.rm=T)#
+    fitted_pops_std =fitted_pops/fitted_pops[,1]#
+    plot(NA,NA,xlim=c(1,dim(fitted_pops_std)[2]),ylim=c(0,1),ylab="Percent Surviving",xlab = "Days post-fertalization")#
+        treatments = rep(1,dim(fitted_pops_std)[1])#
+        treatments[grep("Low",rownames(fitted_pops_std))]=2#
+        treatments=factor(substr(rownames(fitted_pops_std),4,6))#
+        Female=factor(substr(rownames(fitted_pops_std),1,1))#
+        Male=factor(substr(rownames(fitted_pops_std),2,2))#
+        names(treatments)=culture_names#
+        for(culture in culture_names){#
+            data=na.omit(cbind(1:max(unlist(days)), fitted_pops_std[culture,]))#
+            lines(data,col= c(1,2)[as.numeric(treatments[culture]=="Low")+1])#
+        }#
+        legend('topright',legend=c('Ctl','Low'),col=1:2,lty=1)#
+#
+    D=c("A","B","C","D")#
+    N=c("W","X","Y","Z")#
+#
+    Pop = c(rep("D",length(D)),rep("N",length(N)))#
+    names(Pop)=c(D,N)#
+    Pop[substr(rownames(fitted_pops_std),2,2)]#
+#
+    plot(apply(fitted_pops_std[treatments=="Ctl",],2,mean,na.rm=T),ylim=c(0,1),ylab="Percent Surviving",xlab = "Days post-fertalization")#
+        points(1:23,apply(fitted_pops_std[treatments=="Low",],2,mean,na.rm=T),col=2)#
+        legend('topright',legend=c('Ctl','Low'),col=1:2,pch=1)#
+#
+    plot(apply(fitted_pops_std[Pop[substr(rownames(fitted_pops_std),2,2)]=="N",],2,mean,na.rm=T),ylim=c(0,1),ylab="Percent Surviving",xlab = "Days post-fertalization")#
+        points(1:23,apply(fitted_pops_std[Pop[substr(rownames(fitted_pops_std),2,2)]=="D",],2,mean,na.rm=T),col=2)#
+        legend('topright',legend=c('Norway','Denmark'),col=1:2,pch=1)#
+dev.off()
+plot_posterior_mean = function(culture_data, X){#
+    culture = culture_data$Culture[1]#
+    culture_data = culture_data[order(culture_data$Day),]#
+    #exclude days that you don't want to analyze#
+    data  = culture_data[,c("Total_1","Total_2")]#
+    vols  = culture_data$Vol_Used#
+    fact  = culture_data$Density_multiplication_factor#
+    scale = vols/(5000*fact)#
+    days_between_samples = diff(culture_data$Day)#
+    X = t(apply(X,1,'*',days_between_samples))#
+    nDays = dim(data)[1]#
+#plot results#
+    fitted = colMeans(t(apply(X,1,cumprod)))#
+    a=as.data.frame(data)#
+    a=a/scale#
+    plot(rep(1:nDays,2),unlist(a),ylim=c(0,max(c(unlist(a),fitted))),main=culture)#
+    lines(1:nDays,rowMeans(a))#
+    abline(v=(2:nDays)[fact[2:nDays] != fact[2:nDays-1]])#
+    points(fitted,col=4)    #
+}#
+#
+pdf(sprintf('%s/Fitted_survival_curves.pdf',folder))#
+for(culture in culture_names){#
+    # pdf(paste("Fitted_survival_",culture,".pdf"))#
+    plot_posterior_mean(subset(larvae_counts,Culture == culture), daily_survival[[culture]])#
+    # dev.off()#
+}#
+dev.off()
+plot_posterior_mean = function(culture_data, X){#
+    culture = culture_data$Culture[1]#
+    culture_data = culture_data[order(culture_data$Day),]#
+    #exclude days that you don't want to analyze#
+    data  = culture_data[,c("Total_1","Total_2")]#
+    vols  = culture_data$Vol_Used#
+    fact  = culture_data$Density_multiplication_factor#
+    scale = vols/(5000*fact)#
+    days_between_samples = diff(culture_data$Day)#
+    X = t(apply(X,1,'*',c(1,days_between_samples)))#
+    nDays = dim(data)[1]#
+#plot results#
+    fitted = colMeans(t(apply(X,1,cumprod)))#
+    a=as.data.frame(data)#
+    a=a/scale#
+    plot(rep(1:nDays,2),unlist(a),ylim=c(0,max(c(unlist(a),fitted))),main=culture)#
+    lines(1:nDays,rowMeans(a))#
+    abline(v=(2:nDays)[fact[2:nDays] != fact[2:nDays-1]])#
+    points(fitted,col=4)    #
+}#
+#
+pdf(sprintf('%s/Fitted_survival_curves.pdf',folder))#
+for(culture in culture_names){#
+    # pdf(paste("Fitted_survival_",culture,".pdf"))#
+    plot_posterior_mean(subset(larvae_counts,Culture == culture), daily_survival[[culture]])#
+    # dev.off()#
+}#
+dev.off()

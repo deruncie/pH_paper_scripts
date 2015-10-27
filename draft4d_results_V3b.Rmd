@@ -1,0 +1,148 @@
+---
+title: "Draft_4d_results"
+author: "Daniel Runcie"
+date: "October 22, 2015"
+output: html_document
+---
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
+                      echo=FALSE, warning=FALSE, message=FALSE,include=F)
+```
+
+```{r load_packages, include=FALSE}
+library(broman)
+library(reshape)
+
+r = function(x,digits=2){
+  signif(x,digits)
+}
+
+load('/Users/der7/Documents/Urchins/pH_experiment/SPU_analysis/draft4_analysis/draft_4d8_noPop_trait_testing.RData')
+qValue_cutoff = 0.05
+```
+
+### Impact of seawater pH 
+```{r init pH,include=F}
+data = data.frame(Treatment = sample_info$Treatment,Growth_Rate = GRs[,2])
+names(data)[-c(1:2)] = paste('Day',days,sep='_')
+tall_data = melt(data,id.vars = 'Treatment')
+
+# growth rate % change
+mC=mean(data$Growth_Rate[data$Treatment=='Ctl'])
+mL=mean(data$Growth_Rate[data$Treatment=='Low'])
+p_GR_ph = GR_results$p_vals[1,'Treatment']
+
+p_Sur9_pH = survival_results$p_vals[,'Treatment'][1]
+p_Sur21_pH = survival_results$p_vals[,'Treatment'][2]
+```
+
+
+Low pH seawater caused a `r r((mC-mL)/mC*100,2)`% reduction in larval growth rate (Low pH: `r r(mL,2)`mm/day, Control: `r r(mC,2)`mm/day, p=`r signif(p_GR_ph,3)`, Figure 1A). Daily mortality was low in the majority of cultures for the first 10 days, before rising sharply over the remainder of the experiment (Figure 1B), but was not associated with the pH treatment (Days 5-9 p= `r r(p_Sur9_pH)`, Days 9-21 p= `r r(p_Sur21_pH)`).  
+
+```{r ge_ph,include=F}
+# Gene expression
+sig_ge_trt = gene_results$q_vals[,'Treatment_qvalue']<qValue_cutoff
+names(sig_ge_trt) = rownames(gene_results$eB_results)
+
+n_genes = nrow(gene_results$q_vals)
+
+# calculate average treatment effects for all low pH samples
+trt_columns = test_coefs$Treatment
+trt_low_samples = sample_info$Treatment == 'Low'
+trt_effects = gene_results$eB_results$coef[,trt_columns] %*% t(design[trt_low_samples,trt_columns])
+mean_trt_effects = rowMeans(trt_effects)
+n_LFC_1 = sum(abs(mean_trt_effects)>1)
+perc_sig_ge_pH = 100*(1-gene_results$pi0['Treatment'])
+tot_sig_ge_pH = as.integer(n_genes*perc_sig_ge_pH/100)
+p_val_thresh = max(gene_results$p_vals[gene_results$q_vals[,'Treatment_qvalue']<qValue_cutoff,'Treatment'])
+perc_upReg = 100*mean(mean_trt_effects[sig_ge_trt]>0)
+```
+
+Gene expression responses to low pH seawater were common but generally subtle. Using the *qvalue* function(XXStorey 2002), we estimated that `r r(perc_sig_ge_pH)`% (`r tot_sig_ge_pH`) of the `r n_genes` genes we measured were affected by the pH treatment in any of the family groups (male parent or female parent families), but the average response to low pH across all cultures was smaller than two-fold for all but `r n_LFC_1` genes (log<sub>2</sub>FC < +/- 1, Figure 2A, Table SXX). There was a strong bias towards up-regulation at low pH (`r r(perc_upReg,2)`%) among the (`r sum(sig_ge_trt)`) genes we could declare significant at a FDR of `r qValue_cutoff*100`% (corresponding to a p-value threshold of `r r(p_val_thresh)`, Figure 2A, Table SXX). 
+
+```{r gsva_pH_prep,include=F}
+genes = unique(unlist(catList))
+rows_in_cats = rownames(gene_results$eB_results) %in% genes
+num_genes_in_ontologies = sum(rows_in_cats)
+wilcox_res = wilcox.test(gene_results$p_vals[rows_in_cats,'Treatment'],gene_results$p_vals[!rows_in_cats,'Treatment'],alternative = 'less')
+wilcox_all_W = wilcox_res$statistic
+wilcox_all_p = wilcox_res$p.value
+
+n_mf = nrow(gsva_results[['MF']]$p_vals)
+n_bp = nrow(gsva_results[['BP']]$p_vals)
+n_cc = nrow(gsva_results[['CC']]$p_vals)
+n_pc = nrow(gsva_results[['PC']]$p_vals)
+n_hand = nrow(gsva_results[['Hand']]$p_vals)
+num_cats_tot = sum(n_mf,n_bp,n_cc,n_pc,n_hand)
+
+
+perc_sig_mf_ph = 100*(1-gsva_results[['MF']]$pi0[['Treatment']])
+mf_FDR = gsva_results[['MF']]$q_vals[,'Treatment_qvalue'] < qValue_cutoff
+perc_thresh = c(25,50)
+n_mf_g10 = sum(gsva_results[['MF']]$perc_total[,'Treatment'] > perc_thresh[1]/100)
+n_mf_g20 = sum(gsva_results[['MF']]$perc_total[,'Treatment'] > perc_thresh[2]/100)
+
+perc_sig_hand_ph = 100*(1-gsva_results[['Hand']]$pi0[['Treatment']])
+hand_FDR = gsva_results[['Hand']]$q_vals[,'Treatment_qvalue'] < qValue_cutoff
+n_hand_g10 = sum(gsva_results[['Hand']]$perc_total[,'Treatment'] > perc_thresh[1]/100)
+n_hand_g20 = sum(gsva_results[['Hand']]$perc_total[,'Treatment'] > perc_thresh[2]/100)
+```
+
+To summarize the transcriptome response to low pH at a higher and more interpretable level, we used gene ontology annotations to group genes into functionally similar modules and measured how these modules responded to the pH treatment. The set of gene ontology annotations we used included annotations for `r num_genes_in_ontologies` genes, which were significantly enriched for responses to the pH treatment (Wilcoxon Sign Rank W: `r r(wilcox_all_W)`, p=`r r(wilcox_all_p)`). Using *GSVA* (XXHanzleman 2013) we combined the expression levels of these `r num_genes_in_ontologies` genes into measures of `r num_cats_tot` synthetic gene set traits, divided into five categories (PANTHER ontologies: MF: `r n_mf` terms, BP: `r n_bp` terms, CC: `r n_cc` terms, PC: `r n_pc` terms; Hand-annotated ontology: `r n_hand` terms). We believe that the MF and hand-annotated categories are the easiest to interpret and so focus on those results here. Results for all gene set traits are presented in Supplemental Table SXX. pH responses in the `r n_mf` MF gene set traits were larger in magnitude (relative to the total among-sample variance) and were more common than the responses to pH of the individual genes (Figure 2B). We estimated that `r r(perc_sig_mf_ph)`% of these MF gene set traits were affected by the pH treatment. Treatment effects (either as main effects or as interactions with genetic backgrounds) accounted for more that `r perc_thresh[1]`% of the among-sample variation in `r n_mf_g10` of these traits and more than `r perc_thresh[2]`% of the variation in `r n_mf_g20`. The bubble plot in Figure 3 summarizes the `r sum(mf_FDR)` MF gene set treaits that we could declare to be significantly affected by low pH in any cohort at a `r qValue_cutoff*100`% FDR (Figure 3). Several key groups of MF gene sets constitute the core of the response to pH. Down-regulated gene sets mostly were related to DNA and RNA metabolism and cell division. Up-regulated gene sets were related to cell signaling and other trans-membrane functions such as ion channel activities and G-protein couple receptor activity. 
+
+Results were largely congruent for the `r n_hand` gene set traits based on the hand annotated ontologies. Low pH seawater affected `r r(perc_sig_hand_ph)`% of these traits and explained more than `r perc_thresh[1]`% of the variance in `r n_hand_g10`. The `r sum(hand_FDR)` hand-annotated gene set traits we could declare to be significantly affected by low pH in any cohort primarily involved processes such as the cell cycle, cell-cell signaling and immune-related processes (Table XX).
+
+
+### Genetic and maternal effects on larval traits
+
+```{r prep_G,include=F}
+p_GR_fem = GR_results$p_vals[1,'Female']
+
+p_Sur21_male = survival_results$p_vals[,'Male'][2]
+p_Sur21_fem = survival_results$p_vals[,'Female'][2]
+
+perc_sig_ge_male = 100*(1-gene_results$pi0[['Male']])
+perc_sig_ge_female = 100*(1-gene_results$pi0[['Female']])
+
+perc_sig_mf_male = 100*(1-gsva_results[['MF']]$pi0[['Male']])
+perc_sig_mf_female = 100*(1-gsva_results[['MF']]$pi0[['Female']])
+```
+
+Across both performance and molecular traits, differences associated with larval parentage tended to be larger and more common than differences induced by low seawater pH (Figure 2B). We detected significant female parent effects on growth rate (p=`r r(p_GR_fem)`) and both male parent and female parent effects on the percentage of larvae that survived during the latter part of the experiment (survival from day 9 until day 21, male parent p: `r r(p_Sur21_male,2)`, female parent p: `r r(p_Sur21_male,2)`).
+
+Among the `r n_genes` genes, `r r(perc_sig_ge_male)`% had expression variation associated with inherited male parent effects and `r r(perc_sig_ge_female)`% had expression variation associated with female parent effects (Note that the experiment included seven males and only three females). Again, genes with functional annotations were enriched for significant Male parent or Female parent effects relative to unannotated genes.
+Integrating genes into gene set traits increased power to detect parent-of-origin variation as it did for pH effects: `r r(perc_sig_mf_male,3)`% and `r r(perc_sig_mf_female)`% of the `r n_mf` MF gene set traits showed male parent- or female parent-associated variation, respectively.
+
+### Interactions between genetic variation and the response to low pH
+
+```{r prep_I,include=F}
+
+perc_sig_ge_mxt = 100*(1-gene_results$pi0[['Male_Trt']])
+perc_sig_ge_fxt = 100*(1-gene_results$pi0[['Female_Trt']])
+perc_sig_ge_mxf = 100*(1-gene_results$pi0[['Male_Female']])
+
+perc_sig_mf_mxt = 100*(1-gsva_results[['MF']]$pi0[['Male_Trt']])
+perc_sig_mf_fxt = 100*(1-gsva_results[['MF']]$pi0[['Female_Trt']])
+perc_sig_mf_mxf = 100*(1-gsva_results[['MF']]$pi0[['Male_Female']])
+```
+
+By splitting cultures of genetically related larvae between the two pH treatments, we were able to test for differences in responses to pH among culture with different male or female parents, and differences in the male parent effects across different female parent backgrounds. We estimated that `r r(perc_sig_ge_mxt,2)`% of genes had a different expression response to pH among male-parent families and `r r(perc_sig_ge_fxt,2)`% of genes had a different response across the three female-parent backgrounds. Among the `r n_mf` MF gene set traits, `r r(perc_sig_mf_fxt,2)`% of genes had a different response to pH among female-parent families, but we found no evidence for a different response to pH in any of these traits among different male-parent families. We estimated that `r r(perc_sig_ge_fxt,2)`% of genes and `r r(perc_sig_mf_mxf)`% of MF gene set traits had different male-parent effects across the three female-parent backgrounds. However, due to the low level of replication of these interactions in our experimental design, we were not able to declare more than a handful to be significant while maintaining a FDR < `r 100*qValue_cutoff`%.
+
+### Relationship between molecular traits and larval performance
+```{r prep_lasso,include=F}
+perc_red_mse = sapply(lasso_fits,function(fits) {
+	t(sapply(fits,function(a) {		
+		best=match(a$lambda.min,a$lambda)
+		(1-min(a$cvm)/a$cvm[1]) * 100
+	}))
+})
+num_inc = sapply(lasso_fits,function(fits) {
+	t(sapply(fits,function(a) {		
+		best=match(a$lambda.min,a$lambda)
+		a$nzero[best]
+	}))
+})
+
+
+```
+To test if the molecular traits could help explain variation in larval performance, we used multiple regression with a LASSO penalty to try to predict three performance measures (growth rate, early survival fraction, late survival fraction) based on the whole matrix of `r n_genes` genes, or each of the five classes of gene set traits. We used the LASSO penalty because it provides variable selection among the predictors and helps with model regularization when there are more predictors than samples. For each performance measure, the sets of BP and Hand-annotated gene set traits gave similar or better fits, measured by cross-validation performance, than the raw gene expression data (Table XX). For larval growth rate, the best model selected `r num_inc[1,1]` BP gene set traits and improved the mean squared error by `r r(perc_red_mse[1,1])`% relative to a model with only culture pH. The BP traits *pyrimidine base metabolic process* (postivie) and *RNA localization* (negative) were the most strongly associated with growth rate. These `r num_inc[1,1]` BP gene set traits are displayed in Figure 4. The best model for early survival fraction selected `r num_inc[2,1]` BP gene set traits and improved the mean squared error by `r r(perc_red_mse[2,1])`%. The best model for late survival fraction selected `r num_inc[3,5]` Hand-annotated gene set traits and improved the mean squared error by `r r(perc_red_mse[3,5])`%. 

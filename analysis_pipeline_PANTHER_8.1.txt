@@ -1,0 +1,271 @@
+1) Download SpBase build 7
+2) Get GFF, fix endline at end of file
+cp /Volumes/JunkDNA/druncie/Urchin_genomes/annotations/SpBase3.1_build7.gff3/GLEAN-UTR-3.1.gff3 SPUs_fixEnd.gff3
+sed -i -e '$a\' SPUs_fixEnd.gff3
+
+'
+-in this analysis, I will just this GLEANs file as-is. I think this way the research will be more reproducible and useful. Plus, it might get some new stress-related genes.
+
+3) get corresponding peptides
+curl http://www.spbase.org/SpBase/download/downloadfile.php?file=SPU_peptide.fasta > SPU_peptide.fasta
+
+
+4) Do PANTHER search 
+cd /Volumes/LineSine/Homes/Collaboration/SharedSoftware/pantherScore1.03
+csh
+set hmmsearch=/Volumes/LineSine/Homes/Collaboration/SharedSoftware/hmmer-2.3.2_2/hmmer-2.3.2/bin/hmmsearch
+set input_peptides=/Volumes/JunkDNA/druncie/pH_experiment/SPU_analysis/annotations/SPU_peptide.fasta
+set out=/Volumes/JunkDNA/druncie/pH_experiment/SPU_analysis/annotations/PANTHER_results.txt
+setenv PERL5LIB lib
+./pantherScore.pl -l /Volumes/Cuvier/Databases/PANTHER_7.2/PANTHER7.2/ -D B -V -H $hmmsearch -i $input_peptides -o $out -c 18
+
+5) modify SPUs
+  -add ERCC
+	cat SPUs_fixEnd.gff3 /Volumes/JunkDNA/druncie/Urchin_genomes/annotations/SPUs/pH_project_SPUs/ERCC92_mod_for_3.1.gtf >SPUs_with_ERCC.gff3	
+  -extract exons
+	grep -w exon SPUs_with_ERCC.gff3 > SPUs_with_ERCC_exons.gff3
+
+6) add gene info to table, modify gene names in gff3 for HTseq
+R --vanilla
+gleans = read.delim("SPUs_with_ERCC_exons.gff3",h=F,stringsAsFactors=F)
+#extract ids from second term in gleans$V9
+gleans$ID = sapply(gleans$V9,function(x) sub('ID=','',sub('-tr','',sub("Parent=","",strsplit(x,";")[[1]][3]),fixed=T)))
+needs_a_semicolon = sapply(gleans$V9,function(x) substr(x,nchar(x),nchar(x))) != ';'
+gleans$V9[needs_a_semicolon] = paste(gleans$V9[needs_a_semicolon],';',sep='')
+gleans$ID2 = paste(gleans$V9,'Gene=',gleans$ID,';',sep='')
+write.table(gleans[,c(1:8,11)],file='SPUs_with_ERCC_exons_Genes.gff3', sep='\t',row.names=F,col.names=F,quote=F)
+
+ID_length = data.frame(Gene=gleans$ID,Isoform = gleans$ID,length=abs(gleans$V5-gleans$V4)+1)
+write.table(ID_length,file="SPUs_with_ERCC_exon_lengths.txt",row.names=F,col.names=F,sep="\t",quote=F)
+q()
+
+R --vanilla
+#add PANTHER info
+gleans = read.delim("SPUs_with_ERCC_exon_lengths.txt",h=F,stringsAsFactors=F)
+
+panther = read.delim('PTHR8.1_sea_urchin',h=F,stringsAsFactors=F)
+
+names(panther) = c('Gene_Identifier','Protein_ID','PANTHER_SF_ID','PANTHER_Family','PANTHER_SubFamily',
+				'PANTHER_MF','PANTHER_BP','PANTHER_CC','PANTHER_PC','PANTHER_PW')
+panther$SPU = sapply(panther[,1],function(x) sub('gn','',sub('Gene=','',strsplit(x,'|',fixed=T)[[1]][2],fixed=T)))
+
+
+hand_annotations = read.delim('/Volumes/JunkDNA/druncie/Urchin_genomes/annotations/SpBase3.1_build7.gff3/SuppTableS2Ontology.txt',h=T,stringsAsFactors=F)
+
+parse_cats = function(x){
+	if(is.null(x)) return('unclassified')
+	if(length(x) == 1) if(is.na(x)) return('unclassified')
+	res=c(unique(unlist(sapply(x,function(y) {
+		z=strsplit(y,';',fixed=T)[[1]]
+		sapply(z,function(zz) strsplit(zz,'#',fixed=T)[[1]][1])
+	}))))
+	if(is.null(res)) return('unclassified')
+	res=res[order(res)]
+	res=paste(res,collapse=';')
+	if(is.na(res)) res = 'unclassified'
+	res
+}
+
+parse_cat_IDs = function(x){
+	if(length(x)==0) return(NULL)
+	if(length(x) == 1) if(is.na(x) | x=='') return(NULL)
+	res=t(matrix(unlist(sapply(x,function(y) {
+		z=strsplit(y,';',fixed=T)[[1]]
+		if(length(z)==0) return(c("",""))
+		if(length(z)==1) if(is.na(z)) return(c('',''))
+		c(sapply(z,function(zz) strsplit(zz,'#',fixed=T)[[1]])[1:2,])
+	})),nr=2))
+	res = matrix(res[tapply(1:dim(res)[1],res[,2],function(x) x[1]),],nc=2)
+	res = matrix(res[res[,2] != '',],nc=2)
+	return(res)
+}
+
+
+geneInfo = list()
+genes = unique(gleans[,1])
+for(gene in genes){
+	if((match(gene,genes) %% 100) == 0) print(match(gene,genes))
+	geneInfo[[gene]] = list()
+	geneInfo[[gene]]$length = max(tapply(gleans$V3[gleans$V1==gene],gleans$V2[gleans$V1==gene],sum))
+	geneInfo[[gene]]$isoforms = unique(gleans$V2[gleans$V1==gene])
+	geneInfo[[gene]]$SPUs = gene
+	I=match(gene,panther$SPU)
+	geneInfo[[gene]]$PROTEIN_ID = panther$Protein_ID[I]
+	geneInfo[[gene]]$PANTHER_SF_ID = panther$PANTHER_SF_ID[I]
+	geneInfo[[gene]]$PANTHER_FAMILY = panther$PANTHER_Family[I]
+	geneInfo[[gene]]$PANTHER_SUBFAMILY = panther$PANTHER_SubFamily[I]
+
+	geneInfo[[gene]]$MF = parse_cats(panther$PANTHER_MF[I])
+	geneInfo[[gene]]$MF_IDs = parse_cat_IDs(panther$PANTHER_MF[I])
+
+	geneInfo[[gene]]$BP = parse_cats(panther$PANTHER_BP[I])
+	geneInfo[[gene]]$BP_IDs = parse_cat_IDs(panther$PANTHER_BP[I])
+	
+	geneInfo[[gene]]$CC = parse_cats(panther$PANTHER_CC[I])
+	geneInfo[[gene]]$CC_IDs = parse_cat_IDs(panther$PANTHER_CC[I])
+
+	geneInfo[[gene]]$PC = parse_cats(panther$PANTHER_PC[I])
+	geneInfo[[gene]]$PC_IDs = parse_cat_IDs(panther$PANTHER_PC[I])
+
+	geneInfo[[gene]]$PW = parse_cats(panther$PANTHER_PW[I])
+	geneInfo[[gene]]$PW_IDs = parse_cat_IDs(panther$PANTHER_PW[I])
+
+	geneInfo[[gene]]$hand_annotations = paste(unique(c(hand_annotations[match(geneInfo[[gene]]$SPUs,hand_annotations$SPU),-1])),collapse=';')
+}
+
+
+save(geneInfo,file='SPUs_annotation_info.Robj')
+
+
+
+for(cat in c('MF','BP','CC','PC','PW')) {
+	n = paste(cat,'_IDs',sep="")
+	file=paste('Gene_to_',cat,'.txt',sep="")
+	system(paste('rm',file))
+	close(file(file,open='w'))
+	spu_to_cat = c()
+	for(x in names(geneInfo)) {
+		i=match(x,names(geneInfo))
+		if(i %% 1000 == 0) {
+			# print(i)
+			write.table(spu_to_cat,file='temp1.txt',sep='\t',quote=F,col.names=F,row.names=F)
+			system(paste('cat',file,'temp1.txt > temp2.txt'))
+			system(paste('mv temp2.txt',file))
+			spu_to_cat=c()
+		}
+		if(!is.null(geneInfo[[x]][[n]])) if(dim(geneInfo[[x]][[n]])[1]>0) spu_to_cat = rbind(spu_to_cat,data.frame(Gene=x,geneInfo[[x]][[n]]))
+	}
+	write.table(spu_to_cat,file='temp1.txt',sep='\t',quote=F,col.names=F,row.names=F)
+	system(paste('cat',file,'temp1.txt > temp2.txt'))
+	system(paste('mv temp2.txt',file))
+	a=read.delim(file,h=F)
+	print(length(unique(a[,1])) == sum(sapply(geneInfo,function(x) x[[cat]]!='unclassified')))
+}
+#hand annotations:
+annotations = read.delim("/Volumes/JunkDNA/druncie/Urchin_genomes/annotations/SpBase3.1_build7.gff3/SuppTableS2Ontology.txt",stringsAsFactors=F)
+spu_to_cat = c()
+i = 0
+for(gene in unique(annotations$SPU)){
+	i = i+1
+	j = unique(annotations$SPU) == gene
+	if(i %% 100 == 0) print(i) 
+	spu_to_cat = rbind(spu_to_cat,data.frame(Gene = gene, Cat = unique(unlist(annotations[j,-1]))))
+}
+write.table(spu_to_cat,file = 'Gene_to_hand_annotations.txt',row.names=F,col.names=F,sep='\t',quote=F)
+
+
+8) Make Semantic similarity score matrices, following http://www.biomedcentral.com/1471-2105/7/302
+
+library(ontoCAT)
+library(maptools)
+try(dir.create('Semantic_Similarity_scores'))
+
+#already done. don't need to redo:
+#build obo file for Protein class
+pc = read.delim('/Volumes/JunkDNA/druncie/Urchin_genomes/annotations/PANTHER/Protein_class_relationship.txt',h=F,stringsAsFactors=F)
+pc=pc[-117,]
+
+outfile = file('/Volumes/JunkDNA/druncie/Urchin_genomes/annotations/PANTHER/Protein_class_relationship.obo','w')
+writeLines('format-version: 7.2\ndate: 09:11:2012 15:00\nsubsetdef: PANTHERPC "Protein Class for PANTHER"default-namespace: PANTHER\n',outfile,sep='\n')
+for(i in 1:dim(pc)[1]){
+	
+	writeLines('',outfile,sep='\n')
+	writeLines('[Term]',outfile,sep='\n')
+	writeLines(paste('id:',pc[i,1],collapse=' '),outfile,sep='\n')
+	writeLines(paste('name:',pc[i,2],collapse=' '),outfile,sep='\n')
+	writeLines('namespace: Protein class',outfile,sep='\n')
+	writeLines(paste('def:',pc[i,2],collapse=' '),outfile,sep='\n')
+	writeLines('subset: PANTHERPC',outfile,sep='\n')
+	writeLines(paste('is_a:',pc[i,3],'!',pc[i,4],collapse=' '),outfile,sep='\n')
+}
+writeLines('\n[Typedef]\nid: regulates\nname: regulates',outfile,sep='\n')
+close(outfile)
+
+
+source('calc_ontology_similarity_scores.R')
+
+
+
+
+9) Use HTseq to re-count under transcripts
+HTseq_script.q
+mkdir Analyses
+#combine counts
+R --vanilla
+files=list.files(pattern='*counts*',path='/Volumes/JunkDNA/druncie/pH_experiment/SPU_analysis/HTseq_counts',full.names=F)
+counts = c()
+for(file in files){
+name = strsplit(file,'.',fixed=T)[[1]][1]
+f = read.delim(paste('/Volumes/JunkDNA/druncie/pH_experiment/SPU_analysis/HTseq_counts/',file,sep=''),h=F,stringsAsFactors=F)
+n = f[,1]
+f=f$V2
+names(f) = n
+if(!is.null(rownames(counts))) if(sum(n != rownames(counts))>0) print(name)
+counts = cbind(counts,f)
+colnames(counts)[length(colnames(counts))]=name
+}
+ercc_rows = 1:92
+non_gene_rows = 29109:29113
+write.table(counts[ercc_rows,],file='Analyses/ERCC_counts.txt',row.names=T,col.names=T,quote=F,sep='\t')
+write.table(counts[non_gene_rows,],file='Analyses/No_feature_counts.txt',row.names=T,col.names=T,quote=F,sep='\t')
+write.table(counts[-c(ercc_rows, non_gene_rows),],file='Analyses/Gene_counts.txt',row.names=T,col.names=T,quote=F,sep='\t')
+
+
+10) calculate sequence statistics, add to geneInfo
+R --vanilla
+gff=read.delim('SPUs_with_ERCC_exons_Genes.gff3',h=F,stringsAsFactors=F)
+gff$Gene = sub(';','',sapply(gff$V9,function(x) strsplit(x,'Gene=')[[1]][2]))
+
+genes = unique(gff$Gene)
+outfile = 'SPUs_with_ERCC_exons_Genes_collapsed.gff3'
+genomeFile = '/Volumes/JunkDNA/druncie/Urchin_genomes/annotations/genome/Spur_3.1_with_mitochondria/Spur_3.1.LinearScaffold_with_ERCC_with_mitochondria.fa'
+
+geneData = c()
+
+system(paste('rm',outfile))
+for(gene in genes){
+         print(match(gene,genes))
+         call=paste("grep 'Gene=",gene,";' SPUs_with_ERCC_exons_Genes.gff3 > temp.gff3",sep='')
+         system(call)
+         gene_gff = read.delim('temp.gff3',h=F,stringsAsFactors=F)
+         if(sum(gene_gff$V7==".")>0) gene_gff$V7[gene_gff$V7=="."]='+'
+         write.table(gene_gff,file='temp.gff3',sep='\t',quote=F,row.names=F,col.names=F)
+         system('mergebed -s -i temp.gff3 > temp.bed')
+         system('cat temp.bed temp.bed > temp2.bed')
+         merged = read.delim('temp.bed',stringsAsFactors=F,h=F)
+         merged = data.frame(merged[,1],'Qiang-Cufflnk_merged','exon',merged[,2:3],'.',merged[,4],'.',paste('ID=',gene,':',1:dim(merged)[1],';Gene=',gene,sep=''))
+         write.table(merged,file='temp.gff3',row.names=F,col.names=F,quote=F,sep='\t')
+         system(paste('fastaFromBed -fi ',genomeFile,' -bed temp.bed -fo temp.fa -tab'))
+         fasta = paste(read.delim('temp.fa',h=F,stringsAsFactors=F)[,2],collapse='')
+         bases = split(seq(nchar(fasta)),unlist(strsplit(fasta,'')))
+         geneData = rbind(geneData,data.frame(Gene=gene,Length=nchar(fasta),GC = sum(sapply(c('C','G'),function(x) length(bases[[x]])))/nchar(fasta))) 
+         system(paste('cat temp.gff3 >>',outfile))
+         system('rm temp*')
+}
+write.table(geneData,file='SPU_sequence_statistics.txt',sep='\t',quote=F,row.names=F,col.names=T)
+
+11) concatenate categories into useful lists
+cat_directory='/Volumes/JunkDNA/druncie/pH_experiment/SPU_analysis/annotations/'
+cat_files = list(BP='Gene_to_BP.txt',MF='Gene_to_MF.txt',CC = 'Gene_to_CC.txt',PC='Gene_to_PC.txt',Hand='Gene_to_hand_annotations.txt')
+
+cat_list = c()
+for(cat_type in names(cat_files)[1:5]){
+	     cat_data = read.delim(paste(cat_directory,cat_files[[cat_type]],sep=''),h=F,stringsAsFactors=F)
+	     if(dim(cat_data)[2]==2) cat_data = data.frame(cat_data,V3=NA)
+	     cat_list = rbind(cat_list,data.frame(Cat=cat_type,cat_data,stringsAsFactors=F))
+}
+cat_list$Category = paste(cat_list$Cat,cat_list$V2,sep=':')
+cat_list$Category = sub('/','__',cat_list$Category)
+write.table(cat_list,file=paste(cat_directory,'urchin_cat_list.txt',sep=''),sep='\t',row.names=F,col.names=T,quote=F)
+
+library(GSEABase)
+genesets = list()
+cat_file = 'urchin_cats.gmt'
+outfile = paste(cat_directory,'urchin_cats.gmt',sep='')
+for(cat in unique(cat_list$Category)){
+	cat_line = c(cat,cat_list[cat_list$Category==cat,1][1],cat_list$V1[cat_list$Category==cat])
+	cat(paste(cat_line,collapse='\t'),file=outfile,sep='\n',append=T)	
+	genesets[[cat]] = GeneSet(cat_list$V1[cat_list$Category==cat],setName=cat,shortDescription=cat_list[cat_list$Category==cat,1][1])
+}
+urchinCats = GeneSetCollection(genesets)
+save(urchinCats,file=paste(cat_directory,'urchinCats.Robj',sep=''))
